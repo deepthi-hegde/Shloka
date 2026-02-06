@@ -1,0 +1,20 @@
+{
+  "name": "shloka-quiz-generator",
+  "version": "1.0.0",
+  "description": "Generate interactive quizzes for Shloka class students",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js",
+    "simple": "node index.js -d simple",
+    "intermediate": "node index.js -d intermediate",
+    "difficult": "node index.js -d difficult",
+    "all": "node index.js -d all"
+  },
+  "keywords": ["shloka", "quiz", "education", "sanskrit"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "pdf-parse": "^2.4.5"
+  }
+}

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shloka Class Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header .subtitle {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    .score-bar {
+      background: white;
+      border-radius: 15px;
+      padding: 15px 25px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-item .label {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .score-item .value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .question-number {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .difficulty-badge {
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .difficulty-simple { background: #e8f5e9; color: #2e7d32; }
+    .difficulty-intermediate { background: #fff3e0; color: #f57c00; }
+    .difficulty-difficult { background: #fce4ec; color: #c2185b; }
+
+    .question-text {
+      font-size: 1.3em;
+      color: #333;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      padding: 18px 25px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+    }
+
+    .option:hover { border-color: #667eea; background: #f8f9ff; }
+    .option.selected { border-color: #667eea; background: #ede7f6; }
+    .option.correct { border-color: #4caf50; background: #e8f5e9; }
+    .option.incorrect { border-color: #f44336; background: #ffebee; }
+    .option.show-correct { border-color: #4caf50; background: #e8f5e9; }
+
+    .option-letter {
+      width: 35px; height: 35px; border-radius: 50%; background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 15px; font-weight: bold; color: #666;
+    }
+
+    .option.selected .option-letter { background: #667eea; color: white; }
+    .option.correct .option-letter { background: #4caf50; color: white; }
+    .option.incorrect .option-letter { background: #f44336; color: white; }
+
+    .feedback {
+      margin-top: 20px; padding: 15px; border-radius: 10px;
+      text-align: center; font-weight: 500; animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .feedback.correct { background: #e8f5e9; color: #2e7d32; }
+    .feedback.incorrect { background: #ffebee; color: #c62828; }
+
+    .btn {
+      padding: 15px 40px; border: none; border-radius: 25px;
+      font-size: 1.1em; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; margin-top: 20px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary { background: #f5f5f5; color: #333; }
+    .btn-center { display: block; margin: 20px auto; }
+
+    .results { text-align: center; padding: 40px; }
+    .results h2 { font-size: 2em; margin-bottom: 20px; color: #333; }
+
+    .results .score-circle {
+      width: 150px; height: 150px; border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; margin: 30px auto; color: white;
+    }
+
+    .results .score-circle .percentage { font-size: 2.5em; font-weight: bold; }
+    .results .score-circle .label { font-size: 0.9em; opacity: 0.9; }
+    .results .message { font-size: 1.3em; color: #666; margin-bottom: 30px; }
+    .results .stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; }
+    .results .stat { text-align: center; }
+    .results .stat .value { font-size: 2em; font-weight: bold; color: #333; }
+    .results .stat .label { color: #666; }
+
+    .hidden { display: none !important; }
+
+    .start-screen { text-align: center; padding: 40px; }
+    .start-screen h2 { font-size: 1.8em; margin-bottom: 15px; color: #333; }
+    .start-screen p { color: #666; margin-bottom: 30px; font-size: 1.1em; }
+
+    /* Mode selector */
+    .mode-select {
+      display: flex; gap: 20px; justify-content: center;
+      margin-bottom: 25px; flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 20px 30px; border: 2px solid #e0e0e0; border-radius: 15px;
+      cursor: pointer; transition: all 0.2s ease; background: white;
+      text-align: center; min-width: 160px;
+    }
+
+    .mode-btn:hover { border-color: #667eea; }
+    .mode-btn.active { border-color: #667eea; background: #ede7f6; }
+    .mode-btn .emoji { font-size: 2.2em; margin-bottom: 8px; }
+    .mode-btn .text { font-weight: 600; color: #333; font-size: 1.05em; }
+    .mode-btn .desc { font-size: 0.8em; color: #888; margin-top: 4px; }
+
+    .difficulty-select {
+      display: flex; gap: 15px; justify-content: center;
+      margin-bottom: 30px; flex-wrap: wrap;
+    }
+
+    .difficulty-btn {
+      padding: 15px 30px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; transition: all 0.2s ease; background: white;
+    }
+
+    .difficulty-btn:hover { border-color: #667eea; }
+    .difficulty-btn.active { border-color: #667eea; background: #ede7f6; }
+    .difficulty-btn .emoji { font-size: 2em; margin-bottom: 8px; }
+    .difficulty-btn .text { font-weight: 600; color: #333; }
+
+    /* Matching question styles */
+    .matching-container {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    }
+
+    .matching-column {
+      display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 180px;
+    }
+
+    .matching-column-header {
+      font-weight: 600; color: #667eea; text-align: center;
+      padding: 8px; border-bottom: 2px solid #667eea; margin-bottom: 5px;
+    }
+
+    .matching-item {
+      padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; transition: all 0.2s ease; text-align: center;
+      font-size: 0.95em; user-select: none;
+    }
+
+    .matching-item:hover { border-color: #667eea; background: #f8f9ff; }
+    .matching-item.selected { border-color: #667eea; background: #ede7f6; box-shadow: 0 0 0 3px rgba(102,126,234,0.3); }
+    .matching-item.matched { border-color: #4caf50; background: #e8f5e9; cursor: default; opacity: 0.85; }
+    .matching-item.wrong { animation: shake 0.5s ease; border-color: #f44336; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    /* Audio question styles */
+    .audio-container { text-align: center; padding: 10px; }
+
+    .sanskrit-display {
+      font-size: 1.15em; line-height: 1.8; padding: 20px;
+      background: #f5f0ff; border-radius: 12px; margin-bottom: 20px;
+      font-style: italic; color: #4a4a4a;
+    }
+
+    .sanskrit-display .blank {
+      display: inline-block; min-width: 100px; border-bottom: 3px solid #667eea;
+      margin: 0 4px; color: #667eea; font-weight: bold;
+    }
+
+    .record-btn {
+      width: 80px; height: 80px; border-radius: 50%; border: none;
+      background: #f44336; color: white; font-size: 1.5em;
+      cursor: pointer; transition: all 0.2s ease; margin: 15px;
+    }
+
+    .record-btn:hover { transform: scale(1.1); }
+    .record-btn.recording { animation: pulse-record 1.5s infinite; background: #d32f2f; }
+
+    @keyframes pulse-record {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244,67,54,0.7); }
+      50% { box-shadow: 0 0 0 15px rgba(244,67,54,0); }
+    }
+
+    .playback-btn {
+      width: 60px; height: 60px; border-radius: 50%; border: none;
+      background: #667eea; color: white; font-size: 1.3em;
+      cursor: pointer; margin: 15px;
+    }
+
+    .audio-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
+    .audio-status { font-size: 0.9em; color: #666; margin: 10px 0; }
+
+    .correct-answer-reveal {
+      background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px;
+      padding: 15px; margin: 15px 0; text-align: left;
+    }
+
+    .correct-answer-reveal .reveal-label { font-weight: 600; color: #2e7d32; margin-bottom: 8px; }
+    .correct-answer-reveal .sanskrit { font-style: italic; color: #333; line-height: 1.6; }
+
+    .self-assess { display: flex; gap: 15px; justify-content: center; margin-top: 15px; }
+
+    .self-assess-btn {
+      padding: 12px 30px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; font-size: 1em; font-weight: 600;
+      transition: all 0.2s ease; background: white;
+    }
+
+    .self-assess-btn.correct-btn:hover { border-color: #4caf50; background: #e8f5e9; }
+    .self-assess-btn.incorrect-btn:hover { border-color: #f44336; background: #ffebee; }
+
+    /* Flashcard styles */
+    .flashcard-controls {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; border-radius: 15px; padding: 12px 20px;
+      margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .flashcard-counter { font-weight: 600; color: #333; font-size: 1.1em; }
+
+    .flashcard-wrapper { perspective: 1000px; margin-bottom: 20px; }
+
+    .flashcard {
+      width: 100%; min-height: 350px; position: relative; cursor: pointer;
+      transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4,0.0,0.2,1);
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute; top: 0; left: 0; width: 100%; min-height: 350px;
+      backface-visibility: hidden; border-radius: 20px; padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex;
+      flex-direction: column; justify-content: center;
+    }
+
+    .flashcard-front {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; text-align: center;
+    }
+
+    .flashcard-front h3 { font-size: 1.8em; margin-bottom: 20px; }
+    .flashcard-front .flashcard-sanskrit { font-size: 1.05em; font-style: italic; opacity: 0.9; line-height: 1.6; }
+    .flashcard-front .flip-hint { font-size: 0.85em; opacity: 0.6; margin-top: 20px; }
+
+    .flashcard-back {
+      background: white; transform: rotateY(180deg); text-align: left;
+    }
+
+    .fc-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+    .fc-section:last-child { border-bottom: none; }
+    .fc-label { font-weight: 600; color: #667eea; display: block; margin-bottom: 4px; font-size: 0.9em; }
+
+    .flashcard-nav { display: flex; justify-content: center; gap: 20px; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.8em; }
+      .question-text { font-size: 1.1em; }
+      .option { padding: 14px 18px; font-size: 1em; }
+      .score-bar { flex-wrap: wrap; gap: 15px; }
+      .matching-container { flex-direction: column; gap: 15px; }
+      .mode-select { gap: 10px; }
+      .mode-btn { min-width: 140px; padding: 15px 20px; }
+      .flashcard-front h3 { font-size: 1.4em; }
+      .flashcard { min-height: 300px; }
+      .flashcard-front, .flashcard-back { min-height: 300px; padding: 20px; }
+      .flashcard-controls { flex-wrap: wrap; gap: 10px; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Shloka Quiz</h1>
+      <p class="subtitle">Test your knowledge of sacred verses</p>
+    </div>
+
+    <div id="start-screen" class="question-card start-screen">
+      <h2>Welcome to Shloka Quiz!</h2>
+      <p>Enter your name and choose a mode to begin.</p>
+
+      <div class="name-input" style="margin-bottom: 25px;">
+        <input type="text" id="student-name" placeholder="Enter your name"
+               style="padding: 15px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; width: 100%; max-width: 300px; text-align: center;">
+      </div>
+
+      <div class="mode-select">
+        <div class="mode-btn active" data-mode="quiz" onclick="selectMode('quiz', this)">
+          <div class="emoji">&#x1F4DD;</div>
+          <div class="text">Quiz Mode</div>
+          <div class="desc">Test your knowledge</div>
+        </div>
+        <div class="mode-btn" data-mode="flashcard" onclick="selectMode('flashcard', this)">
+          <div class="emoji">&#x1F4DA;</div>
+          <div class="text">Flashcard Mode</div>
+          <div class="desc">Study and review</div>
+        </div>
+      </div>
+
+      <div id="quiz-options" class="difficulty-select">
+        <div class="difficulty-btn active" data-difficulty="all" onclick="selectDifficulty('all', this)">
+          <div class="emoji">&#x1F31F;</div>
+          <div class="text">All Levels</div>
+        </div>
+        <div class="difficulty-btn" data-difficulty="simple" onclick="selectDifficulty('simple', this)">
+          <div class="emoji">&#x1F331;</div>
+          <div class="text">Simple</div>
+        </div>
+        <div class="difficulty-btn" data-difficulty="intermediate" onclick="selectDifficulty('intermediate', this)">
+          <div class="emoji">&#x1F33F;</div>
+          <div class="text">Intermediate</div>
+        </div>
+        <div class="difficulty-btn" data-difficulty="difficult" onclick="selectDifficulty('difficult', this)">
+          <div class="emoji">&#x1F333;</div>
+          <div class="text">Difficult</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="startSelected()">Start</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+      <div class="score-bar">
+        <div class="score-item">
+          <div class="label">Score</div>
+          <div class="value" id="current-score">0</div>
+        </div>
+        <div class="score-item">
+          <div class="label">Question</div>
+          <div class="value"><span id="current-question">1</span>/<span id="total-questions">10</span></div>
+        </div>
+        <div class="score-item">
+          <div class="label">Correct</div>
+          <div class="value" id="correct-count">0</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+
+      <div class="question-card" id="question-card"></div>
+    </div>
+
+    <div id="results-screen" class="question-card results hidden">
+      <h2>Quiz Complete!</h2>
+      <p style="color: #667eea; font-size: 1.1em; margin-bottom: 10px;">Well done, <span id="result-name"></span>!</p>
+      <div class="score-circle">
+        <div class="percentage" id="final-percentage">0%</div>
+        <div class="label">Score</div>
+      </div>
+      <p class="message" id="result-message"></p>
+      <div class="stats">
+        <div class="stat">
+          <div class="value" id="final-correct">0</div>
+          <div class="label">Correct</div>
+        </div>
+        <div class="stat">
+          <div class="value" id="final-wrong">0</div>
+          <div class="label">Wrong</div>
+        </div>
+        <div class="stat">
+          <div class="value" id="final-total">0</div>
+          <div class="label">Total</div>
+        </div>
+      </div>
+      <p id="score-submitted" class="hidden" style="color: #4caf50; font-size: 0.9em; margin-top: 15px;">Your score has been sent to your teacher!</p>
+      <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
+      <button class="btn btn-secondary" onclick="goHome()" style="margin-left: 10px;">Change Mode</button>
+      <button class="btn btn-secondary" id="study-wrong-btn" onclick="studyWrongAnswers()" style="margin-left: 10px; display: none;">Study Wrong Answers</button>
+    </div>
+
+    <div id="flashcard-screen" class="hidden">
+      <div class="flashcard-controls">
+        <button class="btn btn-secondary" onclick="shuffleFlashcards()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Shuffle</button>
+        <span class="flashcard-counter" id="flashcard-counter">1 / 20</span>
+        <button class="btn btn-secondary" onclick="goHome()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Home</button>
+      </div>
+
+      <div class="flashcard-wrapper" id="flashcard-wrapper">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-front">
+            <h3 id="fc-name"></h3>
+            <p class="flashcard-sanskrit" id="fc-sanskrit"></p>
+            <p class="flip-hint">Tap to flip</p>
+          </div>
+          <div class="flashcard-back">
+            <div class="fc-section">
+              <span class="fc-label">Meaning:</span>
+              <span id="fc-meaning"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deity:</span>
+              <span id="fc-deity"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Occasion:</span>
+              <span id="fc-occasion"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deep Meaning:</span>
+              <span id="fc-deep"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="btn btn-secondary" onclick="prevCard()" style="margin-top: 0;">Previous</button>
+        <button class="btn btn-primary" onclick="nextCard()" style="margin-top: 0;">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const allQuestions = [{"question":"Which of these is mentioned in \"Asato Ma Sadgamaya\"?","options":["truth","silver","fire","moon"],"answer":"truth","shloka":"Asato Ma Sadgamaya","type":"multiple_choice","difficulty":"simple","id":39},{"question":"When should we chant \"Guru Brahma\"?","options":["Daily chanting","Vishnu worship / Meditation","Honoring teachers / Guru Purnima","Morning - before stepping on ground"],"answer":"Honoring teachers / Guru Purnima","shloka":"Guru Brahma","type":"multiple_choice","difficulty":"simple","id":4},{"question":"True or False: \"Buddhir Balam (Hanuman Shloka)\" is chanted for strength and intelligence.","options":["True","False"],"answer":"True","shloka":"Buddhir Balam (Hanuman Shloka)","type":"multiple_choice","difficulty":"simple","id":50},{"question":"When should we chant \"Brahmarpanam\"?","options":["Honoring teachers / Guru Purnima","Vishnu worship / Meditation","For strength and intelligence","Before eating"],"answer":"Before eating","shloka":"Brahmarpanam","type":"multiple_choice","difficulty":"simple","id":25},{"question":"True or False: \"Brahmarpanam\" is chanted for strength and intelligence.","options":["True","False"],"answer":"False","shloka":"Brahmarpanam","type":"multiple_choice","difficulty":"simple","id":26},{"question":"Which of these is mentioned in \"Brahmarpanam\"?","options":["diamond","fruit","birds","offering"],"answer":"offering","shloka":"Brahmarpanam","type":"multiple_choice","difficulty":"simple","id":27},{"question":"When should we chant \"Vakratunda Mahakaya\"?","options":["Morning - upon waking","Beginning of any task","Bedtime","Vishnu worship / Meditation"],"answer":"Beginning of any task","shloka":"Vakratunda Mahakaya","type":"multiple_choice","difficulty":"simple","id":1},{"question":"When should we chant \"Karagre Vasate\"?","options":["For strength and intelligence","Honoring teachers / Guru Purnima","Morning - upon waking","Morning - before stepping on ground"],"answer":"Morning - upon waking","shloka":"Karagre Vasate","type":"multiple_choice","difficulty":"simple","id":7},{"question":"Which of these is mentioned in \"Tvameva Mata\"?","options":["birds","mother","fire","diamond"],"answer":"mother","shloka":"Tvameva Mata","type":"multiple_choice","difficulty":"simple","id":48},{"question":"When should we chant \"Pradakshina Shloka\"?","options":["Prayer for forgiveness / Complete surrender","Circumambulation (Pradakshina)","Lighting the lamp","Vishnu worship / Meditation"],"answer":"Circumambulation (Pradakshina)","shloka":"Pradakshina Shloka","type":"multiple_choice","difficulty":"simple","id":55},{"question":"True or False: \"Aham Vaishvanaro\" is chanted before eating.","options":["True","False"],"answer":"True","shloka":"Aham Vaishvanaro","type":"multiple_choice","difficulty":"simple","id":23},{"question":"True or False: \"Annapurna Shloka\" is chanted before eating.","options":["True","False"],"answer":"True","shloka":"Annapurna Shloka","type":"multiple_choice","difficulty":"simple","id":20},{"type":"audio_recite","question":"Recite a shloka about Krishna (God as digestive fire)","hint":"Aham Vaishvanaro","correctSanskrit":"ahaṃ vaiśvānaro bhūtvā prāṇināṃ dehamāśritaḥ prāṇāpāna samāyuktaḥ pacāmyannaṃ caturvidham","shloka":"Aham Vaishvanaro","difficulty":"difficult","id":66},{"question":"True or False: \"Shantakaram (Vishnu Dhyana)\" is chanted vishnu worship / meditation.","options":["True","False"],"answer":"True","shloka":"Shantakaram (Vishnu Dhyana)","type":"multiple_choice","difficulty":"simple","id":53},{"question":"What blessing do we ask for in \"Ganga Shloka\"?","options":["Removal of past sins","Liberation from ignorance","Transforms ordinary water into sacred tirtha (holy water)","Spiritual awakening"],"answer":"Transforms ordinary water into sacred tirtha (holy water)","shloka":"Ganga Shloka","type":"multiple_choice","difficulty":"simple","id":15},{"question":"True or False: \"Shubham Karoti\" is chanted lighting the lamp.","options":["True","False"],"answer":"True","shloka":"Shubham Karoti","type":"multiple_choice","difficulty":"simple","id":17},{"type":"matching","question":"Match each shloka with its deity:","pairs":[{"left":"Brahmarpanam","right":"Brahman (Supreme Reality)"},{"left":"Shanti Mantra (Sahana Vavatu)","right":"Universal Prayer"},{"left":"Papoham (Surrender Prayer)","right":"Universal (Any deity)"},{"left":"Guru Brahma","right":"Guru (Teacher)"}],"matchType":"name_deity","rightLabel":"Deity","shloka":"Multiple","difficulty":"intermediate","id":62},{"question":"When should we chant \"Shubham Karoti\"?","options":["Lighting the lamp","For strength and intelligence","Honoring teachers / Guru Purnima","Vishnu worship / Meditation"],"answer":"Lighting the lamp","shloka":"Shubham Karoti","type":"multiple_choice","difficulty":"simple","id":16},{"question":"When should we chant \"Rama Taraka Mantra\"?","options":["Devi worship / Navaratri","Daily chanting","Morning - upon waking","Complete surrender to God"],"answer":"Daily chanting","shloka":"Rama Taraka Mantra","type":"multiple_choice","difficulty":"simple","id":40},{"question":"Which of these is mentioned in \"Papoham (Surrender Prayer)\"?","options":["sin","money","sky","ocean"],"answer":"sin","shloka":"Papoham (Surrender Prayer)","type":"multiple_choice","difficulty":"simple","id":60},{"question":"What blessing do we ask for in \"Devi Shloka (Sarvamangala)\"?","options":["Health, wealth, and removal of negative thoughts","Removal of past sins","Fulfillment of all wishes and purposes","Spiritual awakening"],"answer":"Fulfillment of all wishes and purposes","shloka":"Devi Shloka (Sarvamangala)","type":"multiple_choice","difficulty":"simple","id":36},{"question":"True or False: \"Rama Skandham\" is chanted daily chanting.","options":["True","False"],"answer":"False","shloka":"Rama Skandham","type":"multiple_choice","difficulty":"simple","id":29},{"question":"True or False: \"Rama Taraka Mantra\" is chanted daily chanting.","options":["True","False"],"answer":"True","shloka":"Rama Taraka Mantra","type":"multiple_choice","difficulty":"simple","id":41},{"question":"When should we chant \"Rama Skandham\"?","options":["For strength and intelligence","Bedtime","Beginning of study","Daily chanting"],"answer":"Bedtime","shloka":"Rama Skandham","type":"multiple_choice","difficulty":"simple","id":28},{"question":"Which of these is mentioned in \"Karagre Vasate\"?","options":["money","peace","diamond","fingertips"],"answer":"fingertips","shloka":"Karagre Vasate","type":"multiple_choice","difficulty":"simple","id":9},{"question":"Which of these is mentioned in \"Shubham Karoti\"?","options":["diamond","lamp","stars","trees"],"answer":"lamp","shloka":"Shubham Karoti","type":"multiple_choice","difficulty":"simple","id":18},{"question":"True or False: \"Ganga Shloka\" is chanted before bathing.","options":["True","False"],"answer":"True","shloka":"Ganga Shloka","type":"multiple_choice","difficulty":"simple","id":14},{"type":"matching","question":"Match each shloka with its meaning:","pairs":[{"left":"Shanti Mantra (Sahana Vavatu)","right":"Peace, protection, and learning together"},{"left":"Pradakshina Shloka","right":"Washing away sins through circumambulation"},{"left":"Tvameva Mata","right":"God is everything to us"},{"left":"Brahmarpanam","right":"Everything is Brahman (Supreme Reality)"}],"matchType":"name_meaning","rightLabel":"Meaning","shloka":"Multiple","difficulty":"intermediate","id":61},{"question":"What blessing do we ask for in \"Samudra Vasane\"?","options":["Healthy digestion","Removal of past sins","Peace and successful learning","Forgiveness for walking on Mother Earth"],"answer":"Forgiveness for walking on Mother Earth","shloka":"Samudra Vasane","type":"multiple_choice","difficulty":"simple","id":12},{"question":"True or False: \"Sarve Bhavantu Sukhinah\" is chanted prayer for guidance / meditation.","options":["True","False"],"answer":"False","shloka":"Sarve Bhavantu Sukhinah","type":"multiple_choice","difficulty":"simple","id":44},{"question":"True or False: \"Karagre Vasate\" is chanted morning - upon waking.","options":["True","False"],"answer":"True","shloka":"Karagre Vasate","type":"multiple_choice","difficulty":"simple","id":8},{"question":"True or False: \"Vakratunda Mahakaya\" is chanted beginning of any task.","options":["True","False"],"answer":"True","shloka":"Vakratunda Mahakaya","type":"multiple_choice","difficulty":"simple","id":2},{"question":"When should we chant \"Shantakaram (Vishnu Dhyana)\"?","options":["Vishnu worship / Meditation","Beginning of study","Complete surrender to God","Beginning of any task"],"answer":"Vishnu worship / Meditation","shloka":"Shantakaram (Vishnu Dhyana)","type":"multiple_choice","difficulty":"simple","id":52},{"question":"True or False: \"Pradakshina Shloka\" is chanted circumambulation (pradakshina).","options":["True","False"],"answer":"True","shloka":"Pradakshina Shloka","type":"multiple_choice","difficulty":"simple","id":56},{"question":"What blessing do we ask for in \"Shantakaram (Vishnu Dhyana)\"?","options":["Spiritual awakening","Removes fear of worldly existence (bhava-bhaya)","Knowledge and detachment","Merit of thousand names"],"answer":"Removes fear of worldly existence (bhava-bhaya)","shloka":"Shantakaram (Vishnu Dhyana)","type":"multiple_choice","difficulty":"simple","id":54}];
+    const allShlokas = [{"id":1,"name":"Vakratunda Mahakaya","sanskrit":"vakratuṇḍa mahākāya sūryakoṭi samaprabha nirvighnaṃ kuru me deva sarvakāryeṣu sarvadā","sanskritParts":["vakratuṇḍa mahākāya","sūryakoṭi samaprabha","nirvighnaṃ kuru me deva","sarvakāryeṣu sarvadā"],"meaning":"O Lord with curved trunk and huge body, whose brilliance equals a million suns, please remove all obstacles from my endeavors, always.","deity":"Ganesha","occasion":"Beginning of any task","source":"Mudgala Purana","keywords":["curved trunk","obstacles","million suns","brilliance"],"deepMeaning":{"symbolism":"The curved trunk represents the cosmic sound 'Om' and wisdom to navigate complex situations","blessing":"Removal of obstacles and success in all endeavors","qualities":["Vighnaharta - remover of obstacles","Divine radiance dispelling ignorance"],"benefit":"Students gain sharper memory and concentration for academic success"},"trivia":"Very popular in Maharashtra during Ganesh Chaturthi"},{"id":2,"name":"Guru Brahma","sanskrit":"gururbrahmā gururviṣṇuḥ gururdevo maheśvaraḥ guruḥ sākṣāt parabrahma tasmai śrī gurave namaḥ","sanskritParts":["gururbrahmā gururviṣṇuḥ","gururdevo maheśvaraḥ","guruḥ sākṣāt parabrahma","tasmai śrī gurave namaḥ"],"meaning":"Guru is Brahma (creator), Guru is Vishnu (preserver), Guru is Shiva (destroyer). Guru is the supreme reality itself. Salutations to that Guru.","deity":"Guru (Teacher)","occasion":"Honoring teachers / Guru Purnima","keywords":["Brahma","Vishnu","Shiva","teacher","supreme reality"],"deepMeaning":{"symbolism":"Guru creates knowledge, preserves it, and destroys ignorance - like the three main gods","etymology":"'Gu' means darkness, 'Ru' means remover - Guru removes darkness of ignorance","blessing":"Liberation from ignorance and the cycle of rebirth","qualities":["Creates self-knowledge","Preserves wisdom","Destroys ignorance"]},"trivia":"Recited on Teacher's Day and Guru Purnima"},{"id":3,"name":"Karagre Vasate","sanskrit":"karāgre vasate lakṣmiḥ karamadhye sarasvati karamūle tu govindaḥ prabhāte karadarśanam","sanskritParts":["karāgre vasate lakṣmiḥ","karamadhye sarasvati","karamūle tu govindaḥ","prabhāte karadarśanam"],"meaning":"At the tip of the fingers resides Lakshmi, in the middle of the palm resides Saraswati, at the base of the palm resides Govinda. Look at your palms in the morning.","deity":"Lakshmi, Saraswati, Govinda","occasion":"Morning - upon waking","source":"Vishnu Purana","keywords":["fingertips","palm","Lakshmi","Saraswati","Govinda","morning"],"deepMeaning":{"symbolism":"Our hands carry divine energies - wealth, wisdom, and protection through our actions","handParts":{"fingertips":"Lakshmi - wealth and prosperity","middle":"Saraswati - knowledge and wisdom","base":"Govinda/Vishnu - protection and stability"},"lesson":"Achievement comes through our own hands and honest actions","practice":"Look at palms, visualize the three deities, rub palms, touch eyes"},"trivia":"Also called 'Karadarshanam' - looking at hands"},{"id":4,"name":"Samudra Vasane","sanskrit":"samudravasane devi parvatastanamaṇḍale viṣṇupatni namastubhyaṃ pādasparśaṃ kṣamasvame","sanskritParts":["samudravasane devi","parvatastanamaṇḍale","viṣṇupatni namastubhyaṃ","pādasparśaṃ kṣamasvame"],"meaning":"O Goddess dressed in oceans, with mountains as your bosom, wife of Vishnu, I bow to you. Please forgive me for stepping on you.","deity":"Bhumi Devi (Mother Earth)","occasion":"Morning - before stepping on ground","keywords":["oceans","mountains","Earth","forgiveness","stepping"],"deepMeaning":{"symbolism":"Earth wears oceans as clothes and mountains as ornaments - a beautiful poetic image","blessing":"Forgiveness for walking on Mother Earth","environmentalMessage":"Teaches respect for nature and environmental awareness","humility":"Starting the day with humility and gratitude"},"trivia":"Also called Bhumi Vandana or Kshama Prarthana (forgiveness prayer)"},{"id":5,"name":"Ganga Shloka","sanskrit":"gaṅge ca yamune caiva godāvari sarasvati narmade sindhu kāveri jale'smin saṃnidhiṃ kuru","sanskritParts":["gaṅge ca yamune caiva","godāvari sarasvati","narmade sindhu kāveri","jale'smin saṃnidhiṃ kuru"],"meaning":"O Ganga, Yamuna, Godavari, Saraswati, Narmada, Sindhu, and Kaveri - please be present in this water.","deity":"Sacred Rivers","occasion":"Before bathing","keywords":["Ganga","Yamuna","Godavari","Narmada","Kaveri","Sindhu","Saraswati","rivers","water"],"deepMeaning":{"symbolism":"Invokes the purity and blessings of all seven sacred rivers into everyday water","rivers":["Ganga","Yamuna","Godavari","Saraswati","Narmada","Sindhu","Kaveri"],"blessing":"Transforms ordinary water into sacred tirtha (holy water)","gratitude":"Expression of gratitude to God for the gift of water"},"trivia":"These are the Sapta Sindhus - seven sacred rivers of India"},{"id":6,"name":"Shubham Karoti","sanskrit":"śubhaṃ karoti kalyāṇam ārogyaṃ dhanasaṃpadā śatrubuddhi vināśāya dīpajyoti namo'stute","sanskritParts":["śubhaṃ karoti kalyāṇam","ārogyaṃ dhanasaṃpadā","śatrubuddhi vināśāya","dīpajyoti namo'stute"],"meaning":"The lamp brings auspiciousness, welfare, health, and wealth. It destroys enemy-like thoughts. Salutations to the lamp light.","deity":"Deepa (Sacred Lamp)","occasion":"Lighting the lamp","keywords":["lamp","light","auspicious","health","wealth","enemies"],"deepMeaning":{"symbolism":"Light represents knowledge dispelling the darkness of ignorance","blessings":["Shubham - auspiciousness","Kalyaanam - welfare","Aarogyam - health","Dhana-sampadaa - wealth"],"innerMeaning":"Destroys negative thoughts (inner enemies), not external enemies","lesson":"Light within removes negativity"},"trivia":"Recited during Deepavali and daily lamp lighting"},{"id":7,"name":"Annapurna Shloka","sanskrit":"annapūrṇe sadāpūrṇe śankara prāṇavallabhe jñāna vairāgya sidhyarthaṃ bhikṣāṃ dehicha pārvati","sanskritParts":["annapūrṇe sadāpūrṇe","śankara prāṇavallabhe","jñāna vairāgya sidhyarthaṃ","bhikṣāṃ dehicha pārvati"],"meaning":"O Annapurna, ever complete, beloved of Shankara, give me alms for attaining knowledge and detachment, O Parvati.","deity":"Annapurna (Parvati)","occasion":"Before eating","keywords":["food","Shankara","Parvati","knowledge","detachment","alms"],"deepMeaning":{"symbolism":"Annapurna means 'full of food' - the goddess who provides nourishment","request":"Asks for knowledge (jnana) and detachment (vairagya), not just food","relationship":"Shiva once begged food from Annapurna to teach that even gods depend on food","lesson":"Food is sacred and divine"},"trivia":"Annapurna temple in Varanasi is very famous"},{"id":8,"name":"Aham Vaishvanaro","sanskrit":"ahaṃ vaiśvānaro bhūtvā prāṇināṃ dehamāśritaḥ prāṇāpāna samāyuktaḥ pacāmyannaṃ caturvidham","sanskritParts":["ahaṃ vaiśvānaro bhūtvā","prāṇināṃ dehamāśritaḥ","prāṇāpāna samāyuktaḥ","pacāmyannaṃ caturvidham"],"meaning":"I become the digestive fire in living beings, and united with prana and apana, I digest the four kinds of food.","deity":"Krishna (God as digestive fire)","occasion":"Before eating","source":"Bhagavad Gita (15.14)","keywords":["digestive fire","prana","apana","food","four kinds"],"deepMeaning":{"symbolism":"God is present as the fire that digests our food - He is within us","fourFoods":["Food that is chewed","Food that is swallowed","Food that is licked","Food that is sucked"],"pranaApana":"Two vital airs that help digestion","lesson":"Eating is a sacred act - God helps us digest food"},"trivia":"From Chapter 15 of Bhagavad Gita"},{"id":9,"name":"Brahmarpanam","sanskrit":"brahmārpaṇaṃ brahma haviḥ brahmāgnau brahmaṇā hutam brahmaiva tena gaṃtavyaṃ brahmakarma samādhinā","sanskritParts":["brahmārpaṇaṃ brahma haviḥ","brahmāgnau brahmaṇā hutam","brahmaiva tena gaṃtavyaṃ","brahmakarma samādhinā"],"meaning":"The offering is Brahman, the oblation is Brahman, offered by Brahman into the fire of Brahman. Brahman shall be reached by one who sees Brahman in all actions.","deity":"Brahman (Supreme Reality)","occasion":"Before eating","source":"Bhagavad Gita (4.24)","keywords":["offering","Brahman","fire","oblation","actions"],"deepMeaning":{"symbolism":"Everything in the act of eating is Brahman - the food, the eater, the eating, the digestion","philosophy":"When we see the divine in all actions, we attain liberation","lesson":"Transforms the mundane act of eating into a sacred offering","depth":"One of the most philosophical shlokas - everything is Brahman"},"trivia":"From Chapter 4 of Bhagavad Gita - Jnana Yoga"},{"id":10,"name":"Rama Skandham","sanskrit":"rāmaṃ skandhaṃ hanumantaṃ vainateyaṃ vṛkodaraṃ śayane yaḥ smare nityam dusvapna stasyanaśyati","sanskritParts":["rāmaṃ skandhaṃ hanumantaṃ","vainateyaṃ vṛkodaraṃ","śayane yaḥ smare nityam","dusvapna stasyanaśyati"],"meaning":"One who remembers Rama, Skanda, Hanuman, Garuda (Vinateya), and Bhima (Vrikodara) while going to sleep, their bad dreams are destroyed.","deity":"Rama, Skanda, Hanuman, Garuda, Bhima","occasion":"Bedtime","keywords":["sleep","bad dreams","Rama","Hanuman","Skanda","Garuda","Bhima"],"deepMeaning":{"fiveProtectors":{"Rama":"The ideal king and avatar of Vishnu","Skanda":"Son of Shiva, god of war (Kartikeya/Murugan)","Hanuman":"The devoted servant, symbol of strength","Vinateya":"Garuda - the divine eagle, Vishnu's vehicle","Vrikodara":"Bhima - the strong Pandava warrior"},"blessing":"Protection from nightmares and peaceful sleep","commonTheme":"All five are known for their strength and ability to defeat evil"},"trivia":"Vrikodara means 'wolf-bellied' - Bhima's name due to his huge appetite"},{"id":11,"name":"Shanti Mantra (Sahana Vavatu)","sanskrit":"Om Sahana vavatu Saha Nau Bhunaktu Saha Viiryam Karavaavahai Tejasvi Naava dhiitamastu Maa Vidvi shavahai Om Shaantih Shaantih Shaantih","sanskritParts":["Om Sahana vavatu","Saha Nau Bhunaktu","Saha Viiryam Karavaavahai","Tejasvi Naava dhiitamastu","Maa Vidvi shavahai","Om Shaantih Shaantih Shaantih"],"meaning":"May we be protected together, may we be nourished together, may we work together with vigor, may our study be brilliant, may we not quarrel. Om Peace, Peace, Peace.","deity":"Universal Prayer","occasion":"Beginning of study","source":"Taittiriya, Katha, Mandukya Upanishads","keywords":["peace","protection","study","together","vigor","Shaantih"],"deepMeaning":{"relationship":"Emphasizes the sacred bond between teacher (Guru) and student (Shishya)","values":["Mutual protection","Shared nourishment","Cooperative learning","Non-quarreling"],"tripleShanti":{"first":"Cleanses the body of suffering","second":"Relieves the mind of worries","third":"Connects the soul to higher self"},"lesson":"Learning happens best in harmony and cooperation"},"trivia":"Often chanted at the start of yoga classes"},{"id":12,"name":"Devi Shloka (Sarvamangala)","sanskrit":"Om sarvamangala maangalye shive sarvaartha saadhike Sharanye tryambike gowri naaraayani namostute","sanskritParts":["Om sarvamangala maangalye","shive sarvaartha saadhike","Sharanye tryambike gowri","naaraayani namostute"],"meaning":"O auspicious one who bestows auspiciousness, O Shive who fulfills all purposes, O refuge, three-eyed Gowri, salutations to you Narayani.","deity":"Durga/Narayani/Parvati","occasion":"Devi worship / Navaratri","keywords":["auspicious","Shive","three-eyed","Gowri","Narayani","refuge"],"deepMeaning":{"names":{"Sarvamangala":"The most auspicious one","Shive":"The benevolent one","Tryambike":"The three-eyed one","Gowri":"The fair/pure one","Narayani":"Connected to Narayana (Vishnu)"},"blessing":"Fulfillment of all wishes and purposes","protection":"She is the refuge (Sharanye) for all devotees"},"trivia":"Popular during Navaratri festival"},{"id":13,"name":"Asato Ma Sadgamaya","sanskrit":"Om Asato Maa Sad-Gamaya Tamaso Maa Jyotir-Gamaya Mrtyor-Maa Amrtam Gamaya Om Shaantih Shaantih Shaantih","sanskritParts":["Om Asato Maa Sad-Gamaya","Tamaso Maa Jyotir-Gamaya","Mrtyor-Maa Amrtam Gamaya","Om Shaantih Shaantih Shaantih"],"meaning":"Lead me from untruth to truth, from darkness to light, from death to immortality. Om Peace, Peace, Peace.","deity":"Universal Prayer","occasion":"Prayer for guidance / Meditation","source":"Brihadaranyaka Upanishad (1.3.28)","keywords":["truth","light","immortality","darkness","death","peace"],"deepMeaning":{"threeJourneys":{"asatToSat":"From illusion/untruth to reality/truth","tamasToJyoti":"From ignorance/darkness to knowledge/light","mrityuToAmritam":"From mortality/death to immortality"},"philosophy":"Summarizes all human spiritual aspirations in three lines","otherName":"Pavamana Mantra (purifying mantra)","universality":"A prayer of all human beings everywhere"},"trivia":"Also called Pavamana Mantra, found in Yajur Veda"},{"id":14,"name":"Rama Taraka Mantra","sanskrit":"Shree raama raama raameti Rame raame manorame Sahasra naama tattulyam Raama naama varanane","sanskritParts":["Shree raama raama raameti","Rame raame manorame","Sahasra naama tattulyam","Raama naama varanane"],"meaning":"By chanting 'Rama Rama Rama', which delights the mind, is equal to chanting the thousand names of Vishnu.","deity":"Rama","occasion":"Daily chanting","source":"Vishnu Sahasranama (Phala Shruti)","keywords":["Rama","thousand names","Vishnu","chanting","manorame"],"deepMeaning":{"power":"Chanting 'Rama' three times equals chanting 1000 names of Vishnu","manorame":"Delights the mind - brings mental peace","simplicity":"Makes devotion accessible - just say 'Rama'","context":"Shiva told this to Parvati - he himself chants Rama's name"},"trivia":"Shiva is said to constantly chant 'Rama'"},{"id":15,"name":"Sarve Bhavantu Sukhinah","sanskrit":"Om sarve bhavantu sukhinaha Sarve santu niraamayaaha Sarve bhadrani pashyantu Maa kaschiddukha bhaag Bhavet","sanskritParts":["Om sarve bhavantu sukhinaha","Sarve santu niraamayaaha","Sarve bhadrani pashyantu","Maa kaschiddukha bhaag Bhavet"],"meaning":"May all be happy, may all be free from illness, may all see goodness, may none suffer from sorrow.","deity":"Universal Prayer","occasion":"Blessing for all beings","keywords":["happy","illness","goodness","sorrow","everyone","blessing"],"deepMeaning":{"fourWishes":{"sukhinah":"May all be happy","niraamayaaha":"May all be free from disease","bhadrani":"May all see/experience goodness","na dukha":"May none have sorrow"},"universality":"Not just for self or family - for ALL beings","philosophy":"Demonstrates the Hindu concept of universal welfare (Loka Sangraha)","lesson":"True spirituality includes wishing well for everyone"},"trivia":"One of the most universal Hindu prayers"},{"id":16,"name":"Tvameva Mata","sanskrit":"tvameva mātā ca pitā tvameva tvameva bandhuśca sakhā tvameva tvameva vidyā draviṇaṃ tvameva tvameva sarvaṃ mama devadeva","sanskritParts":["tvameva mātā ca pitā tvameva","tvameva bandhuśca sakhā tvameva","tvameva vidyā draviṇaṃ tvameva","tvameva sarvaṃ mama devadeva"],"meaning":"You are my mother and father, you are my relative and friend, you are my education and wealth, you are my everything, O Lord of Lords.","deity":"Universal (Any deity)","occasion":"Complete surrender to God","keywords":["mother","father","friend","relative","education","wealth","everything"],"deepMeaning":{"totalSurrender":"God is everything - all relationships and possessions","relationships":["Mother","Father","Relative","Friend"],"possessions":["Education/Knowledge (Vidya)","Wealth (Dravinam)"],"philosophy":"When you have God, you have everything","devotion":"Expresses complete dependence on the divine"},"trivia":"Can be addressed to any deity - very versatile prayer"},{"id":17,"name":"Buddhir Balam (Hanuman Shloka)","sanskrit":"buddhirbalaṃ yaśodhairyam nirbhayatvamarogatā ajāḍhyaṃ vākpaṭutvaṃcha hanumat smaraṇādbhavet","sanskritParts":["buddhirbalaṃ yaśodhairyam","nirbhayatvamarogatā","ajāḍhyaṃ vākpaṭutvaṃcha","hanumat smaraṇādbhavet"],"meaning":"Intelligence, strength, fame, courage, fearlessness, good health, sharpness of wit, and speaking skills - all are obtained by remembering Hanuman.","deity":"Hanuman","occasion":"For strength and intelligence","keywords":["intelligence","strength","courage","fearlessness","health","speaking skills"],"deepMeaning":{"eightBlessings":{"Buddhi":"Intelligence/Wisdom","Balam":"Physical strength","Yashah":"Fame/Glory","Dhairyam":"Courage/Patience","Nirbhayatvam":"Fearlessness","Arogataa":"Freedom from disease","Ajaadyam":"Freedom from laziness/dullness","Vaak-patutvam":"Eloquence in speech"},"hanumanQualities":"Hanuman demonstrated all these in Sundara Kanda of Ramayana","practice":"Simply remembering (smaranam) Hanuman gives these benefits"},"trivia":"Hanuman is considered the 11th Rudra (form of Shiva)"},{"id":18,"name":"Shantakaram (Vishnu Dhyana)","sanskrit":"Shaantaa-kaaram bhujaga-shayanam padma-naabham suresham Vishwaadhaaram gagana sadrusham megha varnam shubhangam Lakshmi-Kaantam Kamala-Nayanam Yogibhir-Dhyaana-Gamyam Vande Vishnum Bhava-Bhaya-Haram Sarva-Lokaika-Naatham","sanskritParts":["Shaantaa-kaaram bhujaga-shayanam","padma-naabham suresham","Vishwaadhaaram gagana sadrusham","megha varnam shubhangam","Lakshmi-Kaantam Kamala-Nayanam","Yogibhir-Dhyaana-Gamyam","Vande Vishnum Bhava-Bhaya-Haram","Sarva-Lokaika-Naatham"],"meaning":"I bow to Vishnu with peaceful form, sleeping on serpent, lotus-naveled, support of universe, sky-like, cloud-colored, beautiful, Lakshmi's husband, lotus-eyed, reached by yogis, remover of worldly fears, lord of all worlds.","deity":"Vishnu","occasion":"Vishnu worship / Meditation","keywords":["serpent","lotus","Lakshmi","cloud-colored","peaceful","yogis","fears"],"deepMeaning":{"visualDescription":{"shaantaakaaram":"Peaceful form","bhujagashayanam":"Reclining on serpent Shesha","padmanaabham":"With lotus at navel (from which Brahma emerged)","meghavarnam":"Cloud-colored (dark blue)","kamala-nayanam":"Lotus-eyed"},"relationships":{"bed":"Serpent Adishesha","spouse":"Lakshmi","son":"Brahma (from lotus)"},"blessing":"Removes fear of worldly existence (bhava-bhaya)"},"trivia":"Describes Vishnu in Anantashayana pose (sleeping on cosmic serpent)"},{"id":19,"name":"Pradakshina Shloka","sanskrit":"yāni kāni cha pāpāni janmāntarakṛtāni cha tāni sarvāṇi naśyanti pradakṣiṇapade pade","sanskritParts":["yāni kāni cha pāpāni","janmāntarakṛtāni cha","tāni sarvāṇi naśyanti","pradakṣiṇapade pade"],"meaning":"Whatever sins committed in this or previous births, all those are destroyed with each step of circumambulation.","deity":"Universal","occasion":"Circumambulation (Pradakshina)","keywords":["sins","previous births","circumambulation","destroyed","steps"],"deepMeaning":{"pradakshina":"Walking clockwise around a deity, temple, or sacred object","power":"Each step destroys sins from current and past lives","symbolism":"The deity/sacred object is at the center of our life","direction":"Always clockwise (keeping the deity on your right)","types":"Can be around temple, deity, tulsi plant, or even oneself"},"trivia":"Pradakshina means 'to the right' - clockwise direction"},{"id":20,"name":"Papoham (Surrender Prayer)","sanskrit":"Paapoham paapa karmaaham paapaatman paapa sambhava Anyatha sharanam naasti tvameva sharanam mama","sanskritParts":["Paapoham paapa karmaaham","paapaatman paapa sambhava","Anyatha sharanam naasti","tvameva sharanam mama"],"meaning":"I am sinful, my actions are sinful, my soul is sinful, born of sin. I have no other refuge, you alone are my refuge.","deity":"Universal (Any deity)","occasion":"Prayer for forgiveness / Complete surrender","keywords":["sin","refuge","surrender","forgiveness"],"deepMeaning":{"humility":"Complete acknowledgment of one's imperfections","surrender":"Total surrender to the divine as the only refuge","psychology":"Accepting flaws is the first step to transformation","universality":"Can be addressed to any deity","contrast":"Shows the gap between human imperfection and divine perfection"},"trivia":"Similar to the concept of confession in other religions"}];
+
+    // Google Form configuration
+    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdLc4T_wQJ5NRI7DgK2KyjYtACBUl7cRwn6EUmEzDKOj-5evQ/formResponse';
+    const FORM_FIELDS = {"name":"entry.1000000","score":"entry.1000001","total":"entry.449709735","percentage":"entry.425323407"};
+
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let correctCount = 0;
+    let selectedDifficulty = 'all';
+    let selectedMode = 'quiz';
+    let answered = false;
+    let studentName = '';
+    let wrongShlokaNames = [];
+
+    // Matching state
+    let matchingState = { selectedLeft: null, matched: [], pairs: [] };
+
+    // Audio state
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordedBlob = null;
+
+    // Flashcard state
+    let flashcardShlokas = [];
+    let currentCardIndex = 0;
+
+    /* ---- Mode & Difficulty Selection ---- */
+
+    function selectMode(mode, btn) {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedMode = mode;
+      document.getElementById('quiz-options').style.display = mode === 'quiz' ? 'flex' : 'none';
+    }
+
+    function selectDifficulty(diff, btn) {
+      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedDifficulty = diff;
+    }
+
+    function startSelected() {
+      studentName = document.getElementById('student-name').value.trim();
+      if (!studentName) {
+        alert('Please enter your name!');
+        document.getElementById('student-name').focus();
+        return;
+      }
+      if (selectedMode === 'quiz') {
+        startQuiz();
+      } else {
+        startFlashcards();
+      }
+    }
+
+    /* ---- Quiz Mode ---- */
+
+    function filterQuestions() {
+      if (selectedDifficulty === 'all') {
+        questions = [...allQuestions];
+      } else {
+        questions = allQuestions.filter(q => q.difficulty === selectedDifficulty);
+      }
+      questions = questions.sort(() => Math.random() - 0.5);
+      questions = questions.slice(0, Math.min(15, questions.length));
+    }
+
+    function startQuiz() {
+      filterQuestions();
+      if (questions.length === 0) {
+        alert('No questions available for this difficulty. Try another level!');
+        return;
+      }
+      currentQuestionIndex = 0;
+      score = 0;
+      correctCount = 0;
+      answered = false;
+      wrongShlokaNames = [];
+
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
+
+      document.getElementById('total-questions').textContent = questions.length;
+      updateScore();
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestionIndex];
+      answered = false;
+
+      document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+      document.getElementById('progress-fill').style.width = ((currentQuestionIndex) / questions.length * 100) + '%';
+
+      if (q.type === 'matching') {
+        showMatchingQuestion(q);
+        return;
+      }
+      if (q.type === 'audio_fill' || q.type === 'audio_recite') {
+        showAudioQuestion(q);
+        return;
+      }
+
+      // Standard multiple choice / true-false / fill-blank
+      const optionLetters = ['A', 'B', 'C', 'D'];
+      let optionsHTML = '';
+      q.options.forEach((opt, i) => {
+        optionsHTML += '<div class="option" data-index="' + i + '" onclick="selectOption(this, ' + i + ')">' +
+          '<span class="option-letter">' + optionLetters[i] + '</span>' +
+          '<span class="option-text">' + opt + '</span></div>';
+      });
+
+      const difficultyClass = 'difficulty-' + q.difficulty;
+      const difficultyLabel = q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1);
+
+      document.getElementById('question-card').innerHTML =
+        '<div class="question-header">' +
+          '<span class="question-number">Question ' + (currentQuestionIndex + 1) + '</span>' +
+          '<span class="difficulty-badge ' + difficultyClass + '">' + difficultyLabel + '</span>' +
+        '</div>' +
+        '<p class="question-text">' + q.question + '</p>' +
+        '<div class="options">' + optionsHTML + '</div>' +
+        '<div id="feedback" class="feedback hidden"></div>' +
+        '<button id="next-btn" class="btn btn-primary btn-center hidden" onclick="nextQuestion()">' +
+          (currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'See Results') +
+        '</button>';
+    }
+
+    function selectOption(element, index) {
+      if (answered) return;
+      answered = true;
+
+      const q = questions[currentQuestionIndex];
+      const selectedAnswer = q.options[index];
+      const isCorrect = selectedAnswer === q.answer;
+
+      document.querySelectorAll('.option').forEach(function(opt, i) {
+        if (q.options[i] === q.answer) {
+          opt.classList.add('correct');
+          if (!isCorrect) opt.classList.add('show-correct');
+        }
+      });
+
+      if (isCorrect) {
+        element.classList.add('correct');
+        score += 10;
+        correctCount++;
+        showFeedback(true, 'Correct! Great job!');
+      } else {
+        element.classList.add('incorrect');
+        showFeedback(false, 'Incorrect. The answer is: ' + q.answer);
+        if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+          wrongShlokaNames.push(q.shloka);
+        }
+      }
+
+      updateScore();
+      document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    /* ---- Matching Questions ---- */
+
+    function showMatchingQuestion(q) {
+      var leftItems = q.pairs.map(function(p, i) { return { text: p.left, index: i }; });
+      var rightItems = q.pairs.map(function(p, i) { return { text: p.right, index: i }; });
+      leftItems.sort(function() { return Math.random() - 0.5; });
+      rightItems.sort(function() { return Math.random() - 0.5; });
+
+      matchingState = { selectedLeft: null, matched: [], pairs: q.pairs };
+
+      var difficultyClass = 'difficulty-' + q.difficulty;
+      var difficultyLabel = q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1);
+
+      var leftHTML = leftItems.map(function(item) {
+        return '<div class="matching-item matching-left" data-index="' + item.index +
+               '" onclick="selectMatchLeft(this, ' + item.index + ')">' + item.text + '</div>';
+      }).join('');
+
+      var rightHTML = rightItems.map(function(item) {
+        return '<div class="matching-item matching-right" data-index="' + item.index +
+               '" onclick="selectMatchRight(this, ' + item.index + ')">' + item.text + '</div>';
+      }).join('');
+
+      var rightLabel = q.rightLabel || 'Answer';
+
+      document.getElementById('question-card').innerHTML =
+        '<div class="question-header">' +
+          '<span class="question-number">Question ' + (currentQuestionIndex + 1) + '</span>' +
+          '<span class="difficulty-badge ' + difficultyClass + '">' + difficultyLabel + '</span>' +
+        '</div>' +
+        '<p class="question-text">' + q.question + '</p>' +
+        '<div class="matching-container">' +
+          '<div class="matching-column">' +
+            '<div class="matching-column-header">Shloka</div>' + leftHTML +
+          '</div>' +
+          '<div class="matching-column">' +
+            '<div class="matching-column-header">' + rightLabel + '</div>' + rightHTML +
+          '</div>' +
+        '</div>' +
+        '<div id="feedback" class="feedback hidden"></div>' +
+        '<button class="btn btn-secondary btn-center" onclick="giveUpMatching()" id="giveup-btn">Show Answers</button>' +
+        '<button id="next-btn" class="btn btn-primary btn-center hidden" onclick="nextQuestion()">' +
+          (currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'See Results') +
+        '</button>';
+    }
+
+    function selectMatchLeft(el, index) {
+      if (answered) return;
+      if (matchingState.matched.some(function(m) { return m.left === index; })) return;
+
+      document.querySelectorAll('.matching-left').forEach(function(e) { e.classList.remove('selected'); });
+      el.classList.add('selected');
+      matchingState.selectedLeft = index;
+    }
+
+    function selectMatchRight(el, rightIndex) {
+      if (answered) return;
+      if (matchingState.selectedLeft === null) return;
+      if (matchingState.matched.some(function(m) { return m.right === rightIndex; })) return;
+
+      var leftIndex = matchingState.selectedLeft;
+
+      if (leftIndex === rightIndex) {
+        matchingState.matched.push({ left: leftIndex, right: rightIndex });
+        document.querySelector('.matching-left[data-index="' + leftIndex + '"]').classList.add('matched');
+        document.querySelector('.matching-left[data-index="' + leftIndex + '"]').classList.remove('selected');
+        el.classList.add('matched');
+        matchingState.selectedLeft = null;
+
+        if (matchingState.matched.length === matchingState.pairs.length) {
+          answered = true;
+          score += 10;
+          correctCount++;
+          showFeedback(true, 'All matched correctly! Great job!');
+          updateScore();
+          document.getElementById('giveup-btn').classList.add('hidden');
+          document.getElementById('next-btn').classList.remove('hidden');
+        }
+      } else {
+        el.classList.add('wrong');
+        setTimeout(function() { el.classList.remove('wrong'); }, 500);
+        document.querySelector('.matching-left[data-index="' + leftIndex + '"]').classList.remove('selected');
+        matchingState.selectedLeft = null;
+      }
+    }
+
+    function giveUpMatching() {
+      if (answered) return;
+      answered = true;
+
+      matchingState.pairs.forEach(function(pair, i) {
+        var leftEl = document.querySelector('.matching-left[data-index="' + i + '"]');
+        var rightEl = document.querySelector('.matching-right[data-index="' + i + '"]');
+        if (leftEl) leftEl.classList.add('matched');
+        if (rightEl) rightEl.classList.add('matched');
+      });
+
+      var q = questions[currentQuestionIndex];
+      if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+        wrongShlokaNames.push(q.shloka);
+      }
+
+      showFeedback(false, 'Here are the correct matches.');
+      document.getElementById('giveup-btn').classList.add('hidden');
+      document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    /* ---- Audio Questions ---- */
+
+    function showAudioQuestion(q) {
+      var difficultyClass = 'difficulty-' + q.difficulty;
+      var difficultyLabel = q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1);
+
+      var contentHTML = '';
+      var answerText = '';
+
+      if (q.type === 'audio_fill') {
+        var displayText = q.sanskritWithBlank.replace('________', '<span class="blank">________</span>');
+        contentHTML = '<div class="sanskrit-display">' + displayText + '</div>';
+        answerText = '<div class="reveal-label">Missing part:</div><div class="sanskrit">' + q.correctPart + '</div>' +
+                     '<div style="margin-top:10px; font-size:0.9em; color:#666;"><strong>Full shloka:</strong> ' + q.fullSanskrit + '</div>';
+      } else {
+        contentHTML = '<div class="sanskrit-display" style="font-style:normal;">' +
+                      '<p style="font-weight:600; font-size:1.1em;">' + q.question + '</p>' +
+                      '<p style="margin-top:10px; font-size:0.9em; color:#888;">Hint: ' + q.hint + '</p></div>';
+        answerText = '<div class="reveal-label">Expected shloka (' + q.shloka + '):</div>' +
+                     '<div class="sanskrit">' + q.correctSanskrit + '</div>';
+      }
+
+      document.getElementById('question-card').innerHTML =
+        '<div class="question-header">' +
+          '<span class="question-number">Question ' + (currentQuestionIndex + 1) + '</span>' +
+          '<span class="difficulty-badge ' + difficultyClass + '">' + difficultyLabel + '</span>' +
+        '</div>' +
+        '<p class="question-text">' + q.question + '</p>' +
+        '<div class="audio-container">' +
+          contentHTML +
+          '<div class="audio-controls">' +
+            '<button class="record-btn" id="record-btn" onclick="toggleRecording()">&#9679;</button>' +
+            '<button class="playback-btn" id="playback-btn" onclick="playRecording()" style="display:none;">&#9654;</button>' +
+          '</div>' +
+          '<div class="audio-status" id="audio-status">Tap the red button to start recording</div>' +
+          '<div id="answer-reveal" class="correct-answer-reveal" style="display:none;">' + answerText + '</div>' +
+          '<div id="self-assess" class="self-assess" style="display:none;">' +
+            '<button class="self-assess-btn correct-btn" onclick="selfAssess(true)">I got it right</button>' +
+            '<button class="self-assess-btn incorrect-btn" onclick="selfAssess(false)">I need more practice</button>' +
+          '</div>' +
+          '<button class="btn btn-secondary btn-center" id="skip-audio-btn" onclick="skipAudioQuestion()" style="font-size:0.9em; padding:10px 25px;">Skip (show answer)</button>' +
+        '</div>' +
+        '<div id="feedback" class="feedback hidden"></div>' +
+        '<button id="next-btn" class="btn btn-primary btn-center hidden" onclick="nextQuestion()">' +
+          (currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'See Results') +
+        '</button>';
+    }
+
+    function toggleRecording() {
+      var btn = document.getElementById('record-btn');
+      var status = document.getElementById('audio-status');
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        btn.classList.remove('recording');
+        btn.innerHTML = '&#9679;';
+        status.textContent = 'Recording stopped. Tap play to listen.';
+        return;
+      }
+
+      audioChunks = [];
+      recordedBlob = null;
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        status.textContent = 'Recording not supported in this browser. Use Skip to see the answer.';
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = function(e) { audioChunks.push(e.data); };
+          mediaRecorder.onstop = function() {
+            recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            stream.getTracks().forEach(function(t) { t.stop(); });
+            document.getElementById('playback-btn').style.display = 'inline-block';
+            document.getElementById('answer-reveal').style.display = 'block';
+            document.getElementById('self-assess').style.display = 'flex';
+            document.getElementById('skip-audio-btn').style.display = 'none';
+          };
+          mediaRecorder.start();
+          btn.classList.add('recording');
+          btn.innerHTML = '&#9632;';
+          status.textContent = 'Recording... Tap to stop.';
+        })
+        .catch(function() {
+          status.textContent = 'Microphone not available. Use Skip to see the answer.';
+        });
+    }
+
+    function playRecording() {
+      if (!recordedBlob) return;
+      var audio = new Audio(URL.createObjectURL(recordedBlob));
+      audio.play();
+      document.getElementById('audio-status').textContent = 'Playing your recording...';
+      audio.onended = function() {
+        document.getElementById('audio-status').textContent = 'Compare your recording with the answer below.';
+      };
+    }
+
+    function selfAssess(isCorrect) {
+      if (answered) return;
+      answered = true;
+
+      if (isCorrect) {
+        score += 10;
+        correctCount++;
+        showFeedback(true, 'Great! Keep practicing!');
+      } else {
+        showFeedback(false, 'Keep practicing - you will get it next time!');
+        var q = questions[currentQuestionIndex];
+        if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+          wrongShlokaNames.push(q.shloka);
+        }
+      }
+
+      document.querySelectorAll('.self-assess-btn').forEach(function(b) {
+        b.style.opacity = '0.5';
+        b.style.pointerEvents = 'none';
+      });
+
+      updateScore();
+      document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function skipAudioQuestion() {
+      document.getElementById('answer-reveal').style.display = 'block';
+      document.getElementById('self-assess').style.display = 'flex';
+      document.getElementById('skip-audio-btn').style.display = 'none';
+      document.getElementById('audio-status').textContent = 'Review the answer below and self-assess.';
+    }
+
+    /* ---- Common Quiz Functions ---- */
+
+    function showFeedback(isCorrect, message) {
+      var feedback = document.getElementById('feedback');
+      feedback.textContent = message;
+      feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+      feedback.classList.remove('hidden');
+    }
+
+    function updateScore() {
+      document.getElementById('current-score').textContent = score;
+      document.getElementById('correct-count').textContent = correctCount;
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('results-screen').classList.remove('hidden');
+
+      var percentage = Math.round((correctCount / questions.length) * 100);
+      document.getElementById('final-percentage').textContent = percentage + '%';
+      document.getElementById('final-correct').textContent = correctCount;
+      document.getElementById('final-wrong').textContent = questions.length - correctCount;
+      document.getElementById('final-total').textContent = questions.length;
+
+      var message = '';
+      if (percentage >= 90) message = 'Outstanding! You are a Shloka master!';
+      else if (percentage >= 70) message = 'Great job! Keep practicing!';
+      else if (percentage >= 50) message = 'Good effort! Review the shlokas and try again!';
+      else message = 'Keep learning! Practice makes perfect!';
+
+      document.getElementById('result-message').textContent = message;
+      document.getElementById('result-name').textContent = studentName;
+
+      if (wrongShlokaNames.length > 0) {
+        document.getElementById('study-wrong-btn').style.display = 'inline-block';
+      } else {
+        document.getElementById('study-wrong-btn').style.display = 'none';
+      }
+
+      submitScoreToGoogleForm(percentage);
+    }
+
+    function submitScoreToGoogleForm(percentage) {
+      if (!GOOGLE_FORM_URL) return;
+
+      var formData = new URLSearchParams();
+      formData.append(FORM_FIELDS.name, studentName);
+      formData.append(FORM_FIELDS.score, correctCount.toString());
+      formData.append(FORM_FIELDS.total, questions.length.toString());
+      formData.append(FORM_FIELDS.percentage, percentage.toString());
+      if (FORM_FIELDS.difficulty) formData.append(FORM_FIELDS.difficulty, selectedDifficulty);
+
+      fetch(GOOGLE_FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      }).then(function() {
+        document.getElementById('score-submitted').classList.remove('hidden');
+      }).catch(function() {});
+    }
+
+    function restartQuiz() {
+      filterQuestions();
+      currentQuestionIndex = 0;
+      score = 0;
+      correctCount = 0;
+      wrongShlokaNames = [];
+
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+
+      updateScore();
+      showQuestion();
+    }
+
+    /* ---- Flashcard Mode ---- */
+
+    function startFlashcards(filterWrong) {
+      if (filterWrong && wrongShlokaNames.length > 0) {
+        flashcardShlokas = allShlokas.filter(function(s) { return wrongShlokaNames.includes(s.name); });
+      } else {
+        flashcardShlokas = allShlokas.slice();
+      }
+
+      if (flashcardShlokas.length === 0) {
+        alert('No shlokas to review!');
+        return;
+      }
+
+      currentCardIndex = 0;
+
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.remove('hidden');
+
+      showCard();
+    }
+
+    function showCard() {
+      var s = flashcardShlokas[currentCardIndex];
+      document.getElementById('flashcard').classList.remove('flipped');
+
+      document.getElementById('fc-name').textContent = s.name;
+      document.getElementById('fc-sanskrit').textContent = s.sanskrit;
+      document.getElementById('fc-meaning').textContent = s.meaning;
+      document.getElementById('fc-deity').textContent = s.deity;
+      document.getElementById('fc-occasion').textContent = s.occasion;
+
+      var deepText = '';
+      if (s.deepMeaning) {
+        if (s.deepMeaning.symbolism) deepText = s.deepMeaning.symbolism;
+        else if (s.deepMeaning.lesson) deepText = s.deepMeaning.lesson;
+        else if (s.deepMeaning.blessing) deepText = s.deepMeaning.blessing;
+      }
+      document.getElementById('fc-deep').textContent = deepText || '';
+
+      document.getElementById('flashcard-counter').textContent = (currentCardIndex + 1) + ' / ' + flashcardShlokas.length;
+
+      // Reset wrapper height for new content
+      var wrapper = document.getElementById('flashcard-wrapper');
+      wrapper.style.minHeight = '400px';
+    }
+
+    function flipCard() {
+      document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      if (currentCardIndex < flashcardShlokas.length - 1) {
+        currentCardIndex++;
+        showCard();
+      }
+    }
+
+    function prevCard() {
+      if (currentCardIndex > 0) {
+        currentCardIndex--;
+        showCard();
+      }
+    }
+
+    function shuffleFlashcards() {
+      flashcardShlokas = flashcardShlokas.sort(function() { return Math.random() - 0.5; });
+      currentCardIndex = 0;
+      showCard();
+    }
+
+    function studyWrongAnswers() {
+      document.getElementById('results-screen').classList.add('hidden');
+      startFlashcards(true);
+    }
+
+    /* ---- Navigation ---- */
+
+    function goHome() {
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+      document.getElementById('quiz-options').style.display = selectedMode === 'quiz' ? 'flex' : 'none';
+    }
+  </script>
+</body>
+</html>
