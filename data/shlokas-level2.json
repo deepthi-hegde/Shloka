@@ -1,0 +1,175 @@
+[
+  {
+    "id": 1,
+    "name": "Ganesha Stavah",
+    "sanskrit": "ajaM nirvikalpaM nirAkAramEkaM nirAnanda mAnanda madvaitapUrNaM paraM nirguNaM nirvishEShaM nirIhaM parabrahmarUpaM gaNEshaM bhajEma",
+    "sanskritParts": [
+      "ajaM nirvikalpaM nirAkAramEkaM",
+      "nirAnanda mAnanda madvaitapUrNaM",
+      "paraM nirguNaM nirvishEShaM nirIhaM",
+      "parabrahmarUpaM gaNEshaM bhajEma"
+    ],
+    "meaning": "Let us worship Ganesha who is the form of Parabrahman — unborn, beyond thought, formless, one, beyond joy yet full of non-dual bliss, supreme, beyond qualities, beyond distinction, desireless.",
+    "deity": "Ganesha",
+    "occasion": "Ganesha worship / Beginning of study",
+    "source": "Ganpati Upanishad / Ganesha Stavam by Adi Shankaracharya",
+    "keywords": ["Parabrahman", "unborn", "formless", "non-dual", "beyond qualities", "Adi Shankaracharya"],
+    "verses": 3,
+    "deepMeaning": {
+      "symbolism": "Ganesha is not just an elephant-headed deity but the Supreme Reality (Parabrahman) itself — formless, infinite, and beyond all attributes",
+      "keyTerms": {
+        "ajam": "Unborn - He was never born and will never die",
+        "nirvikalpam": "Beyond thought/imagination",
+        "nirAkAram": "Formless",
+        "advaitapUrNam": "Full of non-dual bliss",
+        "nirguNam": "Beyond the three gunas (qualities)"
+      },
+      "refrain": "Each verse ends with 'parabrahmarUpaM gaNEshaM bhajEma' - Let us worship Ganesha who is the form of Parabrahman",
+      "verse3theme": "Verse 3 describes Ganesha as jagatkAraNam - the cause of the entire universe, worshipped by all gods and the whole world"
+    },
+    "trivia": "This is an Advaita Vedanta hymn — it describes Ganesha not in physical form but as the formless Supreme Reality"
+  },
+  {
+    "id": 2,
+    "name": "Saraswati Vandana",
+    "sanskrit": "Yā kundendu tuṣhāra hāra dhavalā yā śhubhra vastrāvṛtā Yā vīṇā vara daṇḍa maṇḍita karā yā śhveta padmāsanā Yā brahmāchyuta śhaṅkara prabhṛtibhir devaiḥ sadā vanditā Sā māṁ pātu Sarasvatī Bhagavatī nisḥśheṣa jāḍyāpahā",
+    "sanskritParts": [
+      "Yā kundendu tuṣhāra hāra dhavalā yā śhubhra vastrāvṛtā",
+      "Yā vīṇā vara daṇḍa maṇḍita karā yā śhveta padmāsanā",
+      "Yā brahmāchyuta śhaṅkara prabhṛtibhir devaiḥ sadā vanditā",
+      "Sā māṁ pātu Sarasvatī Bhagavatī nisḥśheṣa jāḍyāpahā"
+    ],
+    "meaning": "She who is as white as jasmine, moon, snow, and pearl necklace, who wears pure white garments, whose hands are adorned with the veena, who sits on a white lotus, who is always worshipped by Brahma, Vishnu (Achyuta), Shiva (Shankara) and other gods — may that Saraswati Bhagavati, the remover of all ignorance and dullness, protect me.",
+    "deity": "Saraswati",
+    "occasion": "Before study / Saraswati Puja / Vasant Panchami",
+    "keywords": ["white", "jasmine", "moon", "veena", "lotus", "Brahma", "Vishnu", "Shiva", "ignorance", "dullness"],
+    "deepMeaning": {
+      "symbolism": "Every aspect of Saraswati is white — representing purity of knowledge, untainted by worldly desires",
+      "appearance": {
+        "color": "White as jasmine (kunda), moon (indu), snow (tushara), and pearl necklace (hara)",
+        "clothes": "Pure white garments (shubhra vastra)",
+        "hands": "Adorned with the veena (stringed instrument of learning)",
+        "seat": "White lotus (shveta padmasana)"
+      },
+      "worshippers": "Even the Trinity — Brahma (creator), Achyuta/Vishnu (preserver), and Shankara/Shiva (destroyer) — worship her",
+      "blessing": "Nishshesha jadyapaha — complete remover of all ignorance and mental dullness"
+    },
+    "trivia": "This shloka is recited across India before exams and at the start of educational events"
+  },
+  {
+    "id": 3,
+    "name": "Mantra Pushpam",
+    "sanskrit": "yō-'pā-mpuṣpaṃ vēda Puṣpavān prajāvān paśumān bhavati chandramā vā apāmpuṣpam Puṣpavān prajāvān paśumān bhavati ya ēvaṃ vēda Yō-'pām āyatanaṃ vēda Āyatanavān bhavati",
+    "sanskritParts": [
+      "yō-'pā-mpuṣpaṃ vēda",
+      "Puṣpavān prajāvān paśumān bhavati",
+      "chandramā vā apāmpuṣpam",
+      "ya ēvaṃ vēda",
+      "Yō-'pām āyatanaṃ vēda",
+      "Āyatanavān bhavati"
+    ],
+    "meaning": "He who knows the flower of water becomes endowed with flowers, progeny, and cattle. The moon is the flower of water. He who knows the support (ayatanam) of water becomes established. The hymn then traces water's connection to fire, wind, sun, moon, stars, rain, and the year.",
+    "deity": "Vedic Universal Prayer",
+    "occasion": "End of puja / Offering of mantras to deity",
+    "source": "Taittiriya Aranyaka (Yajur Veda)",
+    "keywords": ["water", "flower", "moon", "fire", "wind", "sun", "stars", "rain", "year", "ayatanam", "Kubera"],
+    "deepMeaning": {
+      "symbolism": "Water is the foundation of all life — the hymn traces cosmic connections showing how everything in nature is interconnected through water",
+      "connections": {
+        "water_flower": "Moon (Chandrama) is the flower of water",
+        "water_fire": "Fire (Agni) is the support of water, and water is the support of fire",
+        "water_wind": "Wind (Vayu) is the support of water",
+        "water_sun": "The Sun is the support of water",
+        "water_moon": "Moon is the support of water",
+        "water_stars": "Stars (Nakshatra) are the support of water",
+        "water_rain": "Rain (Parjanya) is the support of water",
+        "water_year": "The Year (Samvatsara) is the support of water"
+      },
+      "refrain": "Each section ends with 'Āyatanavān bhavati' — one becomes established/supported",
+      "conclusion": "Ends with a prayer to the King of Kings (Rajadhiraja) and Kubera"
+    },
+    "trivia": "Mantra Pushpam is chanted at the end of all Vedic pujas while offering flowers — the mantras themselves become the flowers offered to God"
+  },
+  {
+    "id": 4,
+    "name": "Shanti Mantra (Bhadram Karnebhih)",
+    "sanskrit": "Om Bhadram karnebhih Shrnnuyaama Devaah Bhadram Pashye maAkssabhir-Yajatraah Sthirai Ranggai stussttuva(g)um sastanuubhih Vyashema Deva hitam Yad-Aayuh Svasti Na Indro Vruddha-Shravaah Svasti Nah Puushaa Vishva-Vedaah Svasti Nah-staarkshyo Arissta-Nemih Svasti No Brihaspatir-Dadhaatu Om Shaantih Shaantih Shaantih",
+    "sanskritParts": [
+      "Om Bhadram karnebhih Shrnnuyaama Devaah",
+      "Bhadram Pashye maAkssabhir-Yajatraah",
+      "Sthirai Ranggai stussttuva(g)um sastanuubhih",
+      "Vyashema Deva hitam Yad-Aayuh",
+      "Svasti Na Indro Vruddha-Shravaah",
+      "Svasti Nah Puushaa Vishva-Vedaah",
+      "Svasti Nah-staarkshyo Arissta-Nemih",
+      "Svasti No Brihaspatir-Dadhaatu",
+      "Om Shaantih Shaantih Shaantih"
+    ],
+    "meaning": "O Gods, may we hear auspicious things with our ears. O worshipful ones, may we see auspicious things with our eyes. May we live our full lifespan allotted by the gods with strong limbs and healthy bodies. May Indra of great fame bless us. May Pusha, the all-knowing, bless us. May Tarkshya (Garuda) of unobstructed path bless us. May Brihaspati grant us well-being. Om Peace, Peace, Peace.",
+    "deity": "Indra, Pusha, Tarkshya (Garuda), Brihaspati",
+    "occasion": "Beginning and end of Vedic study / Puja",
+    "source": "Rig Veda / Atharva Veda",
+    "keywords": ["ears", "eyes", "limbs", "lifespan", "Indra", "Pusha", "Tarkshya", "Brihaspati", "Svasti", "peace"],
+    "deepMeaning": {
+      "symbolism": "Prays for the proper functioning of all senses and a full, healthy life in service of the divine",
+      "prayers": {
+        "ears": "Bhadram karnebhih — May we hear only good/auspicious things",
+        "eyes": "Bhadram pashyema — May we see only good/auspicious things",
+        "body": "Sthirai angai — With firm/strong limbs",
+        "life": "Vyashema deva hitam yad-aayuh — May we live the full divine lifespan"
+      },
+      "fourDeities": {
+        "Indra": "King of gods, of great fame (Vruddha-Shravah)",
+        "Pusha": "Sun god, the all-knowing (Vishva-Vedah)",
+        "Tarkshya": "Garuda, of unobstructed path (Arishta-Nemih)",
+        "Brihaspati": "Guru of the gods, teacher of wisdom"
+      },
+      "svasti": "Svasti means well-being/blessings — asked from four different deities"
+    },
+    "trivia": "This is one of the most widely used shanti mantras, chanted at the beginning and end of Vedic recitations"
+  },
+  {
+    "id": 5,
+    "name": "Mahalakshmi Ashtakam",
+    "sanskrit": "namastē'stu mahāmāyē śrīpīṭhē surapūjitē śaṅkhachakra gadāhastē mahālakṣmi namō'stu tē",
+    "sanskritParts": [
+      "namastē'stu mahāmāyē śrīpīṭhē surapūjitē",
+      "śaṅkhachakra gadāhastē mahālakṣmi namō'stu tē",
+      "namastē garuḍārūḍhē kōlāsura bhayaṅkari",
+      "sarvapāpaharē dēvi mahālakṣmi namō'stu tē",
+      "sarvajñē sarvavaradē sarva duṣṭa bhayaṅkari",
+      "sarvaduḥkha harē dēvi mahālakṣmi namō'stu tē",
+      "siddhi buddhi pradē dēvi bhukti mukti pradāyini",
+      "mantra mūrtē sadā dēvi mahālakṣmi namō'stu tē",
+      "padmāsana sthitē dēvi parabrahma svarūpiṇi",
+      "paramēśi jaganmātaḥ mahālakṣmi namō'stu tē",
+      "śvētāmbaradharē dēvi nānālaṅkāra bhūṣitē",
+      "jagasthitē jaganmātaḥ mahālakṣmi namō'stu tē"
+    ],
+    "meaning": "Salutations to Mahalakshmi — the great Mahamaya worshipped by gods, who holds conch, disc and mace; who rides Garuda and terrified the demon Kolasura; the all-knowing, boon-granting, destroyer of evil and sorrow; giver of success, wisdom, worldly enjoyment and liberation; seated on lotus, form of Parabrahman, supreme goddess, mother of the universe; dressed in white, adorned with ornaments, sustainer of the world.",
+    "deity": "Mahalakshmi",
+    "occasion": "Lakshmi Puja / Diwali / Friday worship",
+    "source": "Padma Purana (attributed to Indra)",
+    "keywords": ["Mahamaya", "conch", "disc", "mace", "Garuda", "Kolasura", "siddhi", "buddhi", "mukti", "lotus", "Parabrahman", "mother"],
+    "verses": 8,
+    "deepMeaning": {
+      "symbolism": "Mahalakshmi is not just the goddess of wealth — she is the Supreme Mother, the form of Parabrahman, who gives both worldly enjoyment (bhukti) and spiritual liberation (mukti)",
+      "eightVerses": {
+        "verse1": "Mahamaya, worshipped by gods, holding conch, disc, and mace",
+        "verse2": "Rides Garuda, terrified demon Kolasura, remover of all sins",
+        "verse3": "All-knowing, all-granting, terrifying to evil, remover of all sorrows",
+        "verse4": "Giver of success (siddhi) and wisdom (buddhi), worldly joy and liberation",
+        "verse5": "Without beginning or end, primordial energy (Adi Shakti), supreme goddess",
+        "verse6": "Gross and subtle, fierce power, great remover of sins",
+        "verse7": "Seated on lotus, form of Parabrahman, supreme goddess, mother of universe",
+        "verse8": "Dressed in white, adorned with ornaments, sustainer and mother of the world"
+      },
+      "phalaShruti": {
+        "once": "Reading once daily destroys great sins (mahapapa vinashanam)",
+        "twice": "Reading twice daily gives wealth and grain (dhana dhanya samanvitah)",
+        "thrice": "Reading thrice daily destroys great enemies (mahashatru vinashanam)"
+      }
+    },
+    "trivia": "Ashtakam means 'eight verses' — this is one of the most popular Lakshmi stotras, attributed to Indra who composed it to please Lakshmi"
+  }
+]

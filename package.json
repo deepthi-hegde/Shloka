@@ -8,9 +8,15 @@
     "simple": "node index.js -d simple",
     "intermediate": "node index.js -d intermediate",
     "difficult": "node index.js -d difficult",
-    "all": "node index.js -d all"
+    "all": "node index.js -d all",
+    "generate:level2": "node index-level2.js"
   },
-  "keywords": ["shloka", "quiz", "education", "sanskrit"],
+  "keywords": [
+    "shloka",
+    "quiz",
+    "education",
+    "sanskrit"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

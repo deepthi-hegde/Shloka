@@ -9,21 +9,21 @@ Shloka Quiz Generator - A Node.js tool that generates interactive HTML quizzes f
 ## Commands
 
 ```bash
-# Generate quiz with all difficulty levels
+# Generate Level 1 quiz
 npm run generate
 # or
 node index.js
 
-# Generate specific difficulty levels
-npm run simple        # Easy questions only
-npm run intermediate  # Medium questions only
-npm run difficult     # Hard questions only
+# Generate Level 2 quiz
+npm run generate:level2
+# or
+node index-level2.js
 
 # CLI options
 node index.js -d simple -m 15 -o my-quiz.html
 # -d, --difficulty: simple | intermediate | difficult | all
 # -m, --max: max number of questions
-# -o, --output: output filename
+# -o, --output: output filename (index.js default: shloka-quiz.html, index-level2.js default: shloka-quiz-level2.html)
 ```
 
 ## Architecture
@@ -31,13 +31,18 @@ node index.js -d simple -m 15 -o my-quiz.html
 ```
 shloka-quiz-generator/
 ├── data/
-│   └── shlokas.json       # Shloka database (id, name, sanskrit, meaning, deity, occasion, keywords)
+│   ├── shlokas.json          # Level 1 database
+│   └── shlokas-level2.json   # Level 2 database
 ├── src/
-│   ├── quizGenerator.js   # Question generation logic with templates for 3 difficulty levels
-│   └── htmlGenerator.js   # Creates interactive HTML with scoring
+│   ├── quizGenerator.js      # Level 1 logic
+│   ├── htmlGenerator.js      # Level 1 HTML template
+│   ├── quizGeneratorLevel2.js # Level 2 logic
+│   └── htmlGeneratorLevel2.js # Level 2 HTML template
 ├── output/
-│   └── shloka-quiz.html   # Generated quiz files
-└── index.js               # CLI entry point
+│   ├── shloka-quiz.html      # Level 1 output
+│   └── shloka-quiz-level2.html # Level 2 output
+├── index.js                  # Level 1 entry point
+└── index-level2.js           # Level 2 entry point
 ```
 
 ## Key Design Decisions
@@ -45,7 +50,8 @@ shloka-quiz-generator/
 - **Three difficulty levels**: Simple (deity/occasion), Intermediate (meanings/keywords), Difficult (sanskrit recognition/sources)
 - **Question types**: Multiple choice (4 options), True/False, Fill-in-the-blank
 - **Self-contained HTML**: Quiz works offline, no server needed - just open in browser
-- **Currently covers shlokas 1-20** from the class slides
+- **Level 1 covers shlokas 1-20**
+- **Level 2 covers 5 advanced shlokas** (Ganesha Stavah, Saraswati Vandana, Mantra Pushpam, Shanti Mantra, Mahalakshmi Ashtakam)
 
 ## Teacher Score Tracking (Google Forms)
 
