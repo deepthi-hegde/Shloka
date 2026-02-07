@@ -280,12 +280,80 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       margin-bottom: 8px;
     }
 
+    /* Flashcard styles */
+    .flashcard-controls {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; border-radius: 15px; padding: 12px 20px;
+      margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .flashcard-counter { font-weight: 600; color: #333; font-size: 1.1em; }
+
+    .flashcard-wrapper { perspective: 1000px; margin-bottom: 20px; }
+
+    .flashcard {
+      width: 100%; min-height: 350px; position: relative; cursor: pointer;
+      transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4,0.0,0.2,1);
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute; top: 0; left: 0; width: 100%; min-height: 350px;
+      backface-visibility: hidden; border-radius: 20px; padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex;
+      flex-direction: column; justify-content: center;
+    }
+
+    .flashcard-front {
+      background: linear-gradient(135deg, #e65100 0%, #ff8f00 100%);
+      color: white; text-align: center;
+    }
+
+    .flashcard-front h3 { font-size: 1.8em; margin-bottom: 20px; }
+    .flashcard-front .flashcard-sanskrit { font-size: 1.05em; font-style: italic; opacity: 0.9; line-height: 1.6; }
+    .flashcard-front .flip-hint { font-size: 0.85em; opacity: 0.6; margin-top: 20px; }
+
+    .flashcard-back {
+      background: white; transform: rotateY(180deg); text-align: left;
+    }
+
+    .fc-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+    .fc-section:last-child { border-bottom: none; }
+    .fc-label { font-weight: 600; color: #e65100; display: block; margin-bottom: 4px; font-size: 0.9em; }
+
+    .flashcard-nav { display: flex; justify-content: center; gap: 20px; }
+
+    /* Mode selector */
+    .mode-select {
+      display: flex; gap: 20px; justify-content: center;
+      margin-bottom: 25px; flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 20px 30px; border: 2px solid #e0e0e0; border-radius: 15px;
+      cursor: pointer; transition: all 0.2s ease; background: white;
+      text-align: center; min-width: 160px;
+    }
+
+    .mode-btn:hover { border-color: #e65100; }
+    .mode-btn.active { border-color: #e65100; background: #fff3e0; }
+    .mode-btn .emoji { font-size: 2.2em; margin-bottom: 8px; }
+    .mode-btn .text { font-weight: 600; color: #333; font-size: 1.05em; }
+    .mode-btn .desc { font-size: 0.8em; color: #888; margin-top: 4px; }
+
     @media (max-width: 600px) {
       .header h1 { font-size: 1.8em; }
       .question-text { font-size: 1.1em; }
       .option { padding: 14px 18px; font-size: 1em; }
       .score-bar { flex-wrap: wrap; gap: 15px; }
       .matching-container { flex-direction: column; gap: 15px; }
+      .mode-select { gap: 10px; }
+      .mode-btn { min-width: 140px; padding: 15px 20px; }
+      .flashcard-front h3 { font-size: 1.4em; }
+      .flashcard { min-height: 300px; }
+      .flashcard-front, .flashcard-back { min-height: 300px; padding: 20px; }
+      .flashcard-controls { flex-wrap: wrap; gap: 10px; justify-content: center; }
     }
   </style>
 </head>
@@ -306,26 +374,30 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
                style="padding: 15px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; width: 100%; max-width: 300px; text-align: center;">
       </div>
 
-      <div class="difficulty-select">
-        <div class="difficulty-btn active" data-difficulty="all" onclick="selectDifficulty('all', this)">
-          <div class="emoji">&#x1F31F;</div>
-          <div class="text">All Levels</div>
+      <div class="mode-select">
+        <div class="mode-btn active" data-mode="quiz" onclick="selectMode('quiz', this)">
+          <div class="emoji">&#x1F4DD;</div>
+          <div class="text">Quiz Mode</div>
+          <div class="desc">Test your knowledge</div>
         </div>
-        <div class="difficulty-btn" data-difficulty="simple" onclick="selectDifficulty('simple', this)">
-          <div class="emoji">&#x1F331;</div>
-          <div class="text">Simple</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="intermediate" onclick="selectDifficulty('intermediate', this)">
-          <div class="emoji">&#x1F33F;</div>
-          <div class="text">Intermediate</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="difficult" onclick="selectDifficulty('difficult', this)">
-          <div class="emoji">&#x1F333;</div>
-          <div class="text">Difficult</div>
+        <div class="mode-btn" data-mode="flashcard" onclick="selectMode('flashcard', this)">
+          <div class="emoji">&#x1F4DA;</div>
+          <div class="text">Flashcard Mode</div>
+          <div class="desc">Study and review</div>
         </div>
       </div>
 
-      <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+      <div id="quiz-options">
+        <div class="difficulty-label" style="color: white; margin-bottom: 10px; font-weight: 500;">Select Difficulty:</div>
+        <select id="difficulty-dropdown" style="padding: 12px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; background: white; margin-bottom: 25px; width: 100%; max-width: 200px;">
+          <option value="all">🌟 All Levels</option>
+          <option value="simple">🌱 Simple</option>
+          <option value="intermediate">🌿 Intermediate</option>
+          <option value="difficult">🌳 Difficult</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="startSelected()">Start</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
@@ -373,13 +445,61 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
         </div>
       </div>
       <p id="score-submitted" class="hidden" style="color: #4caf50; font-size: 0.9em; margin-top: 15px;">Your score has been sent to your teacher!</p>
-      <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
-      <button class="btn btn-secondary" onclick="goHome()" style="margin-left: 10px;">Change Difficulty</button>
+      <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto;">
+        <button class="btn btn-primary" id="submit-score-btn" onclick="submitScoreToGoogleFormManual()" style="margin-top:0;">Submit Score</button>
+        <button class="btn btn-secondary" id="study-wrong-btn" onclick="studyWrongAnswers()" style="display: none; margin-top:0;">Review Mistakes</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="restartQuiz()" style="flex: 1; margin-top:0;">Try Again</button>
+          <button class="btn btn-secondary" onclick="goHome()" style="flex: 1; margin-top:0;">Home</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="flashcard-screen" class="hidden">
+      <div class="flashcard-controls">
+        <button class="btn btn-secondary" onclick="shuffleFlashcards()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Shuffle</button>
+        <span class="flashcard-counter" id="flashcard-counter">1 / 5</span>
+        <button class="btn btn-secondary" onclick="goHome()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Home</button>
+      </div>
+
+      <div class="flashcard-wrapper" id="flashcard-wrapper">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-front">
+            <h3 id="fc-name"></h3>
+            <p class="flashcard-sanskrit" id="fc-sanskrit"></p>
+            <p class="flip-hint">Tap to flip</p>
+          </div>
+          <div class="flashcard-back">
+            <div class="fc-section">
+              <span class="fc-label">Meaning:</span>
+              <span id="fc-meaning"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deity:</span>
+              <span id="fc-deity"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Occasion:</span>
+              <span id="fc-occasion"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deep Meaning:</span>
+              <span id="fc-deep"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="btn btn-secondary" onclick="prevCard()" style="margin-top: 0;">Previous</button>
+        <button class="btn btn-primary" onclick="nextCard()" style="margin-top: 0;">Next</button>
+      </div>
     </div>
   </div>
 
   <script>
     var allQuestions = ${questionsJSON};
+    var allShlokas = ${JSON.stringify(options.shlokas || [])};
 
     // Google Form configuration
     var GOOGLE_FORM_URL = '${googleFormUrl}';
@@ -390,18 +510,48 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
     var score = 0;
     var correctCount = 0;
     var selectedDifficulty = 'all';
+    var selectedMode = 'quiz';
     var answered = false;
     var studentName = '';
+    var wrongShlokaNames = [];
 
     // Matching state
     var matchingState = { selectedLeft: null, matched: [], pairs: [] };
 
-    /* ---- Difficulty Selection ---- */
+    // Flashcard state
+    var flashcardShlokas = [];
+    var currentCardIndex = 0;
+
+    /* ---- Mode & Difficulty Selection ---- */
+
+    function selectMode(mode, btn) {
+      document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedMode = mode;
+      document.getElementById('quiz-options').style.display = mode === 'quiz' ? 'block' : 'none';
+    }
 
     function selectDifficulty(diff, btn) {
-      document.querySelectorAll('.difficulty-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
+      // Keep for compatibility but use dropdown value
       selectedDifficulty = diff;
+    }
+
+    function startSelected() {
+      studentName = document.getElementById('student-name').value.trim();
+      if (!studentName) {
+        alert('Please enter your name!');
+        document.getElementById('student-name').focus();
+        return;
+      }
+      
+      const dropdown = document.getElementById('difficulty-dropdown');
+      if (dropdown) selectedDifficulty = dropdown.value;
+
+      if (selectedMode === 'quiz') {
+        startQuiz();
+      } else {
+        startFlashcards();
+      }
     }
 
     /* ---- Quiz Mode ---- */
@@ -433,10 +583,12 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       score = 0;
       correctCount = 0;
       answered = false;
+      wrongShlokaNames = [];
 
       document.getElementById('start-screen').classList.add('hidden');
       document.getElementById('quiz-screen').classList.remove('hidden');
       document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
 
       document.getElementById('total-questions').textContent = questions.length;
       updateScore();
@@ -503,6 +655,9 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       } else {
         element.classList.add('incorrect');
         showFeedback(false, 'Incorrect. The answer is: ' + q.answer);
+        if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+          wrongShlokaNames.push(q.shloka);
+        }
       }
 
       updateScore();
@@ -653,7 +808,34 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       document.getElementById('result-message').textContent = message;
       document.getElementById('result-name').textContent = studentName;
 
+      // Show study wrong button if there are mistakes
+      const studyBtn = document.getElementById('study-wrong-btn');
+      if (studyBtn && wrongShlokaNames.length > 0) {
+        studyBtn.style.display = 'block';
+      } else if (studyBtn) {
+        studyBtn.style.display = 'none';
+      }
+      
+      // Reset submit button
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = 'Submit Score';
+      }
+      document.getElementById('score-submitted').classList.add('hidden');
+    }
+
+    function submitScoreToGoogleFormManual() {
+      const percentage = Math.round((correctCount / questions.length) * 100);
       submitScoreToGoogleForm(percentage);
+      
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.textContent = 'Submitted';
+      }
     }
 
     function submitScoreToGoogleForm(percentage) {
@@ -692,7 +874,68 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
     function goHome() {
       document.getElementById('results-screen').classList.add('hidden');
       document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
       document.getElementById('start-screen').classList.remove('hidden');
+    }
+
+    /* ---- Flashcard Mode ---- */
+
+    function startFlashcards() {
+      flashcardShlokas = allShlokas.slice();
+      currentCardIndex = 0;
+      
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.remove('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      
+      updateFlashcard();
+    }
+
+    function updateFlashcard() {
+      const s = flashcardShlokas[currentCardIndex];
+      const card = document.getElementById('flashcard');
+      card.classList.remove('flipped');
+      
+      document.getElementById('fc-name').textContent = s.name;
+      document.getElementById('fc-sanskrit').textContent = s.sanskrit || '';
+      document.getElementById('fc-meaning').textContent = s.meaning || '';
+      document.getElementById('fc-deity').textContent = s.deity || '';
+      document.getElementById('fc-occasion').textContent = s.occasion || '';
+      document.getElementById('fc-deep').textContent = s.deepMeaning ? s.deepMeaning.summary : '';
+      
+      document.getElementById('flashcard-counter').textContent = (currentCardIndex + 1) + ' / ' + flashcardShlokas.length;
+    }
+
+    function flipCard() {
+      document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      currentCardIndex = (currentCardIndex + 1) % flashcardShlokas.length;
+      updateFlashcard();
+    }
+
+    function prevCard() {
+      currentCardIndex = (currentCardIndex - 1 + flashcardShlokas.length) % flashcardShlokas.length;
+      updateFlashcard();
+    }
+
+    function shuffleFlashcards() {
+      flashcardShlokas.sort(() => Math.random() - 0.5);
+      currentCardIndex = 0;
+      updateFlashcard();
+    }
+
+    function studyWrongAnswers() {
+      if (wrongShlokaNames.length === 0) return;
+      
+      flashcardShlokas = allShlokas.filter(s => wrongShlokaNames.includes(s.name));
+      currentCardIndex = 0;
+      
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.remove('hidden');
+      
+      updateFlashcard();
     }
   </script>
 </body>

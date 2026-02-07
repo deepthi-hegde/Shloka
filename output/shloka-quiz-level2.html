@@ -270,12 +270,80 @@
       margin-bottom: 8px;
     }
 
+    /* Flashcard styles */
+    .flashcard-controls {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; border-radius: 15px; padding: 12px 20px;
+      margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .flashcard-counter { font-weight: 600; color: #333; font-size: 1.1em; }
+
+    .flashcard-wrapper { perspective: 1000px; margin-bottom: 20px; }
+
+    .flashcard {
+      width: 100%; min-height: 350px; position: relative; cursor: pointer;
+      transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4,0.0,0.2,1);
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute; top: 0; left: 0; width: 100%; min-height: 350px;
+      backface-visibility: hidden; border-radius: 20px; padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex;
+      flex-direction: column; justify-content: center;
+    }
+
+    .flashcard-front {
+      background: linear-gradient(135deg, #e65100 0%, #ff8f00 100%);
+      color: white; text-align: center;
+    }
+
+    .flashcard-front h3 { font-size: 1.8em; margin-bottom: 20px; }
+    .flashcard-front .flashcard-sanskrit { font-size: 1.05em; font-style: italic; opacity: 0.9; line-height: 1.6; }
+    .flashcard-front .flip-hint { font-size: 0.85em; opacity: 0.6; margin-top: 20px; }
+
+    .flashcard-back {
+      background: white; transform: rotateY(180deg); text-align: left;
+    }
+
+    .fc-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+    .fc-section:last-child { border-bottom: none; }
+    .fc-label { font-weight: 600; color: #e65100; display: block; margin-bottom: 4px; font-size: 0.9em; }
+
+    .flashcard-nav { display: flex; justify-content: center; gap: 20px; }
+
+    /* Mode selector */
+    .mode-select {
+      display: flex; gap: 20px; justify-content: center;
+      margin-bottom: 25px; flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 20px 30px; border: 2px solid #e0e0e0; border-radius: 15px;
+      cursor: pointer; transition: all 0.2s ease; background: white;
+      text-align: center; min-width: 160px;
+    }
+
+    .mode-btn:hover { border-color: #e65100; }
+    .mode-btn.active { border-color: #e65100; background: #fff3e0; }
+    .mode-btn .emoji { font-size: 2.2em; margin-bottom: 8px; }
+    .mode-btn .text { font-weight: 600; color: #333; font-size: 1.05em; }
+    .mode-btn .desc { font-size: 0.8em; color: #888; margin-top: 4px; }
+
     @media (max-width: 600px) {
       .header h1 { font-size: 1.8em; }
       .question-text { font-size: 1.1em; }
       .option { padding: 14px 18px; font-size: 1em; }
       .score-bar { flex-wrap: wrap; gap: 15px; }
       .matching-container { flex-direction: column; gap: 15px; }
+      .mode-select { gap: 10px; }
+      .mode-btn { min-width: 140px; padding: 15px 20px; }
+      .flashcard-front h3 { font-size: 1.4em; }
+      .flashcard { min-height: 300px; }
+      .flashcard-front, .flashcard-back { min-height: 300px; padding: 20px; }
+      .flashcard-controls { flex-wrap: wrap; gap: 10px; justify-content: center; }
     }
   </style>
 </head>
@@ -296,26 +364,30 @@
                style="padding: 15px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; width: 100%; max-width: 300px; text-align: center;">
       </div>
 
-      <div class="difficulty-select">
-        <div class="difficulty-btn active" data-difficulty="all" onclick="selectDifficulty('all', this)">
-          <div class="emoji">&#x1F31F;</div>
-          <div class="text">All Levels</div>
+      <div class="mode-select">
+        <div class="mode-btn active" data-mode="quiz" onclick="selectMode('quiz', this)">
+          <div class="emoji">&#x1F4DD;</div>
+          <div class="text">Quiz Mode</div>
+          <div class="desc">Test your knowledge</div>
         </div>
-        <div class="difficulty-btn" data-difficulty="simple" onclick="selectDifficulty('simple', this)">
-          <div class="emoji">&#x1F331;</div>
-          <div class="text">Simple</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="intermediate" onclick="selectDifficulty('intermediate', this)">
-          <div class="emoji">&#x1F33F;</div>
-          <div class="text">Intermediate</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="difficult" onclick="selectDifficulty('difficult', this)">
-          <div class="emoji">&#x1F333;</div>
-          <div class="text">Difficult</div>
+        <div class="mode-btn" data-mode="flashcard" onclick="selectMode('flashcard', this)">
+          <div class="emoji">&#x1F4DA;</div>
+          <div class="text">Flashcard Mode</div>
+          <div class="desc">Study and review</div>
         </div>
       </div>
 
-      <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+      <div id="quiz-options">
+        <div class="difficulty-label" style="color: white; margin-bottom: 10px; font-weight: 500;">Select Difficulty:</div>
+        <select id="difficulty-dropdown" style="padding: 12px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; background: white; margin-bottom: 25px; width: 100%; max-width: 200px;">
+          <option value="all">🌟 All Levels</option>
+          <option value="simple">🌱 Simple</option>
+          <option value="intermediate">🌿 Intermediate</option>
+          <option value="difficult">🌳 Difficult</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="startSelected()">Start</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
@@ -363,13 +435,61 @@
         </div>
       </div>
       <p id="score-submitted" class="hidden" style="color: #4caf50; font-size: 0.9em; margin-top: 15px;">Your score has been sent to your teacher!</p>
-      <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
-      <button class="btn btn-secondary" onclick="goHome()" style="margin-left: 10px;">Change Difficulty</button>
+      <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto;">
+        <button class="btn btn-primary" id="submit-score-btn" onclick="submitScoreToGoogleFormManual()" style="margin-top:0;">Submit Score</button>
+        <button class="btn btn-secondary" id="study-wrong-btn" onclick="studyWrongAnswers()" style="display: none; margin-top:0;">Review Mistakes</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="restartQuiz()" style="flex: 1; margin-top:0;">Try Again</button>
+          <button class="btn btn-secondary" onclick="goHome()" style="flex: 1; margin-top:0;">Home</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="flashcard-screen" class="hidden">
+      <div class="flashcard-controls">
+        <button class="btn btn-secondary" onclick="shuffleFlashcards()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Shuffle</button>
+        <span class="flashcard-counter" id="flashcard-counter">1 / 5</span>
+        <button class="btn btn-secondary" onclick="goHome()" style="margin-top:0; padding: 10px 20px; font-size: 0.9em;">Home</button>
+      </div>
+
+      <div class="flashcard-wrapper" id="flashcard-wrapper">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-front">
+            <h3 id="fc-name"></h3>
+            <p class="flashcard-sanskrit" id="fc-sanskrit"></p>
+            <p class="flip-hint">Tap to flip</p>
+          </div>
+          <div class="flashcard-back">
+            <div class="fc-section">
+              <span class="fc-label">Meaning:</span>
+              <span id="fc-meaning"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deity:</span>
+              <span id="fc-deity"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Occasion:</span>
+              <span id="fc-occasion"></span>
+            </div>
+            <div class="fc-section">
+              <span class="fc-label">Deep Meaning:</span>
+              <span id="fc-deep"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="btn btn-secondary" onclick="prevCard()" style="margin-top: 0;">Previous</button>
+        <button class="btn btn-primary" onclick="nextCard()" style="margin-top: 0;">Next</button>
+      </div>
     </div>
   </div>
 
   <script>
-    var allQuestions = [{"type":"matching","question":"Match each shloka with its source scripture:","pairs":[{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Rig Veda / Atharva Veda"},{"left":"Mahalakshmi Ashtakam","right":"Padma Purana (attributed to Indra)"},{"left":"Mantra Pushpam","right":"Taittiriya Aranyaka (Yajur Veda)"},{"left":"Saraswati Vandana","right":"Unknown"}],"matchType":"name_source","rightLabel":"Source","shloka":"Multiple","difficulty":"intermediate","id":24},{"question":"Which deity is worshipped in \"Mantra Pushpam\"?","options":["Vedic Universal Prayer","Brahman (Supreme Reality)","Rama","Hanuman"],"answer":"Vedic Universal Prayer","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":11},{"question":"When should we chant \"Mahalakshmi Ashtakam\"?","options":["Lighting the lamp","Lakshmi Puja / Diwali / Friday worship","Morning prayer","Before bathing"],"answer":"Lakshmi Puja / Diwali / Friday worship","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":17},{"question":"When should we chant \"Mantra Pushpam\"?","options":["End of puja / Offering of mantras to deity","Before eating","Evening prayer","Lakshmi Puja / Diwali / Friday worship"],"answer":"End of puja / Offering of mantras to deity","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":9},{"question":"Which of these keywords is related to \"Saraswati Vandana\"?","options":["white","thunder","birds","peace"],"answer":"white","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":8},{"question":"True or False: \"Saraswati Vandana\" is chanted during lakshmi puja / diwali / friday worship.","options":["True","False"],"answer":"False","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":6},{"question":"How many verses does \"Ganesha Stavah\" have?","options":["3","4","10","6"],"answer":"3","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":4},{"question":"True or False: \"Mantra Pushpam\" is chanted during evening prayer.","options":["True","False"],"answer":"False","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":10},{"question":"Which deity is worshipped in \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["Hanuman","Durga","Indra, Pusha, Tarkshya (Garuda), Brihaspati","Indra, Pusha, Tarkshya, Brihaspati"],"answer":"Indra, Pusha, Tarkshya (Garuda), Brihaspati","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":15},{"question":"When should we chant \"Saraswati Vandana\"?","options":["Morning prayer","Before study / Saraswati Puja / Vasant Panchami","Beginning and end of Vedic study / Puja","Before eating"],"answer":"Before study / Saraswati Puja / Vasant Panchami","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":5},{"question":"Which of these keywords is related to \"Mantra Pushpam\"?","options":["diamond","water","money","birds"],"answer":"water","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":12},{"question":"\"Ganesha Stavah\" is a prayer for what?","options":["Offering mantras as flowers to the deity","Protection from evil","Worshipping Ganesha as Supreme Reality","Seeking blessings of wealth and liberation"],"answer":"Worshipping Ganesha as Supreme Reality","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":3},{"question":"When should we chant \"Ganesha Stavah\"?","options":["Ganesha worship / Beginning of study","Before eating","Morning prayer","Beginning and end of Vedic study / Puja"],"answer":"Ganesha worship / Beginning of study","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":1},{"question":"True or False: \"Mahalakshmi Ashtakam\" is chanted during before eating.","options":["True","False"],"answer":"False","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":18},{"question":"\"Saraswati Vandana\" is a prayer for what?","options":["Seeking knowledge and removal of ignorance","Protection from evil","Worshipping Ganesha as Supreme Reality","Seeking blessings of wealth and liberation"],"answer":"Seeking knowledge and removal of ignorance","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":7},{"question":"When should we chant \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["Morning prayer","Before eating","Lakshmi Puja / Diwali / Friday worship","Beginning and end of Vedic study / Puja"],"answer":"Beginning and end of Vedic study / Puja","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":13},{"type":"matching","question":"Match each shloka with its meaning:","pairs":[{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Prayer for good hearing, seeing, and a full life"},{"left":"Mahalakshmi Ashtakam","right":"Mahalakshmi gives both worldly joy and liberation"},{"left":"Mantra Pushpam","right":"Everything in nature is connected through water"},{"left":"Ganesha Stavah","right":"Ganesha as the formless Parabrahman"}],"matchType":"name_meaning","rightLabel":"Meaning","shloka":"Multiple","difficulty":"intermediate","id":21},{"question":"How many verses does \"Mahalakshmi Ashtakam\" have?","options":["6","8","3","12"],"answer":"8","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":20},{"question":"True or False: \"Ganesha Stavah\" is chanted during ganesha worship / beginning of study.","options":["True","False"],"answer":"True","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":2},{"question":"Which of these keywords is related to \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["gold","ears","silver","clouds"],"answer":"ears","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":16},{"question":"True or False: \"Shanti Mantra (Bhadram Karnebhih)\" is chanted during evening prayer.","options":["True","False"],"answer":"False","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":14},{"question":"\"Mahalakshmi Ashtakam\" is a prayer for what?","options":["Peace and well-being through all senses","Honoring teachers","Seeking blessings of wealth and liberation","Offering mantras as flowers to the deity"],"answer":"Seeking blessings of wealth and liberation","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":19},{"type":"matching","question":"Match each shloka with its occasion:","pairs":[{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Beginning and end of Vedic study / Puja"},{"left":"Mantra Pushpam","right":"End of puja / Offering of mantras to deity"},{"left":"Mahalakshmi Ashtakam","right":"Lakshmi Puja / Diwali / Friday worship"},{"left":"Saraswati Vandana","right":"Before study / Saraswati Puja / Vasant Panchami"}],"matchType":"name_occasion","rightLabel":"Occasion","shloka":"Multiple","difficulty":"intermediate","id":23},{"type":"matching","question":"Match each shloka with its deity:","pairs":[{"left":"Mahalakshmi Ashtakam","right":"Mahalakshmi"},{"left":"Mantra Pushpam","right":"Vedic Universal Prayer"},{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Indra, Pusha, Tarkshya (Garuda), Brihaspati"},{"left":"Ganesha Stavah","right":"Ganesha"}],"matchType":"name_deity","rightLabel":"Deity","shloka":"Multiple","difficulty":"intermediate","id":22}];
+    var allQuestions = [{"question":"\"Ganesha Stavah\" is a prayer for what?","options":["Worshipping Ganesha as Supreme Reality","Seeking blessings of wealth and liberation","Protection from evil","Offering mantras as flowers to the deity"],"answer":"Worshipping Ganesha as Supreme Reality","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":3},{"question":"Which of these keywords is related to \"Mantra Pushpam\"?","options":["rivers","clouds","water","thunder"],"answer":"water","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":12},{"type":"matching","question":"Match each shloka with its meaning:","pairs":[{"left":"Mahalakshmi Ashtakam","right":"Mahalakshmi gives both worldly joy and liberation"},{"left":"Saraswati Vandana","right":"Saraswati removes all ignorance and dullness"},{"left":"Mantra Pushpam","right":"Everything in nature is connected through water"},{"left":"Ganesha Stavah","right":"Ganesha as the formless Parabrahman"}],"matchType":"name_meaning","rightLabel":"Meaning","shloka":"Multiple","difficulty":"intermediate","id":21},{"question":"True or False: \"Saraswati Vandana\" is chanted during end of puja / offering of mantras to deity.","options":["True","False"],"answer":"False","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":6},{"question":"\"Saraswati Vandana\" is a prayer for what?","options":["Honoring teachers","Seeking knowledge and removal of ignorance","Seeking blessings of wealth and liberation","Peace and well-being through all senses"],"answer":"Seeking knowledge and removal of ignorance","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":7},{"type":"matching","question":"Match each shloka with its source scripture:","pairs":[{"left":"Saraswati Vandana","right":"Unknown"},{"left":"Ganesha Stavah","right":"Ganpati Upanishad / Ganesha Stavam by Adi Shankaracharya"},{"left":"Mahalakshmi Ashtakam","right":"Padma Purana (attributed to Indra)"},{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Rig Veda / Atharva Veda"}],"matchType":"name_source","rightLabel":"Source","shloka":"Multiple","difficulty":"intermediate","id":24},{"question":"When should we chant \"Ganesha Stavah\"?","options":["Lakshmi Puja / Diwali / Friday worship","Before study / Saraswati Puja / Vasant Panchami","Ganesha worship / Beginning of study","Morning prayer"],"answer":"Ganesha worship / Beginning of study","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":1},{"question":"When should we chant \"Mantra Pushpam\"?","options":["End of puja / Offering of mantras to deity","Before bathing","Before study / Saraswati Puja / Vasant Panchami","Beginning and end of Vedic study / Puja"],"answer":"End of puja / Offering of mantras to deity","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":9},{"question":"Which of these keywords is related to \"Saraswati Vandana\"?","options":["weapons","thunder","white","silver"],"answer":"white","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":8},{"question":"Which of these keywords is related to \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["sky","rivers","ears","dance"],"answer":"ears","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":16},{"question":"How many verses does \"Mahalakshmi Ashtakam\" have?","options":["3","4","12","8"],"answer":"8","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":20},{"question":"True or False: \"Mantra Pushpam\" is chanted during morning prayer.","options":["True","False"],"answer":"False","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":10},{"question":"Which deity is worshipped in \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["Rama","Indra, Pusha, Tarkshya (Garuda), Brihaspati","Shiva","Vedic Universal Prayer"],"answer":"Indra, Pusha, Tarkshya (Garuda), Brihaspati","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":15},{"question":"When should we chant \"Mahalakshmi Ashtakam\"?","options":["Evening prayer","Morning prayer","Before bathing","Lakshmi Puja / Diwali / Friday worship"],"answer":"Lakshmi Puja / Diwali / Friday worship","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":17},{"type":"matching","question":"Match each shloka with its deity:","pairs":[{"left":"Ganesha Stavah","right":"Ganesha"},{"left":"Saraswati Vandana","right":"Saraswati"},{"left":"Mantra Pushpam","right":"Vedic Universal Prayer"},{"left":"Shanti Mantra (Bhadram Karnebhih)","right":"Indra, Pusha, Tarkshya (Garuda), Brihaspati"}],"matchType":"name_deity","rightLabel":"Deity","shloka":"Multiple","difficulty":"intermediate","id":22},{"question":"Which deity is worshipped in \"Mantra Pushpam\"?","options":["Brahman (Supreme Reality)","Vishnu","Vedic Universal Prayer","Shiva"],"answer":"Vedic Universal Prayer","shloka":"Mantra Pushpam","type":"multiple_choice","difficulty":"simple","id":11},{"type":"matching","question":"Match each shloka with its occasion:","pairs":[{"left":"Mahalakshmi Ashtakam","right":"Lakshmi Puja / Diwali / Friday worship"},{"left":"Ganesha Stavah","right":"Ganesha worship / Beginning of study"},{"left":"Saraswati Vandana","right":"Before study / Saraswati Puja / Vasant Panchami"},{"left":"Mantra Pushpam","right":"End of puja / Offering of mantras to deity"}],"matchType":"name_occasion","rightLabel":"Occasion","shloka":"Multiple","difficulty":"intermediate","id":23},{"question":"How many verses does \"Ganesha Stavah\" have?","options":["3","4","10","7"],"answer":"3","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":4},{"question":"\"Mahalakshmi Ashtakam\" is a prayer for what?","options":["Seeking blessings of wealth and liberation","Worshipping Ganesha as Supreme Reality","Protection from evil","Seeking knowledge and removal of ignorance"],"answer":"Seeking blessings of wealth and liberation","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":19},{"question":"When should we chant \"Shanti Mantra (Bhadram Karnebhih)\"?","options":["Before study / Saraswati Puja / Vasant Panchami","Lighting the lamp","Beginning and end of Vedic study / Puja","Evening prayer"],"answer":"Beginning and end of Vedic study / Puja","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":13},{"question":"True or False: \"Shanti Mantra (Bhadram Karnebhih)\" is chanted during before study / saraswati puja / vasant panchami.","options":["True","False"],"answer":"False","shloka":"Shanti Mantra (Bhadram Karnebhih)","type":"multiple_choice","difficulty":"simple","id":14},{"question":"When should we chant \"Saraswati Vandana\"?","options":["Before study / Saraswati Puja / Vasant Panchami","Lighting the lamp","Lakshmi Puja / Diwali / Friday worship","Beginning and end of Vedic study / Puja"],"answer":"Before study / Saraswati Puja / Vasant Panchami","shloka":"Saraswati Vandana","type":"multiple_choice","difficulty":"simple","id":5},{"question":"True or False: \"Mahalakshmi Ashtakam\" is chanted during lighting the lamp.","options":["True","False"],"answer":"False","shloka":"Mahalakshmi Ashtakam","type":"multiple_choice","difficulty":"simple","id":18},{"question":"True or False: \"Ganesha Stavah\" is chanted during lakshmi puja / diwali / friday worship.","options":["True","False"],"answer":"False","shloka":"Ganesha Stavah","type":"multiple_choice","difficulty":"simple","id":2}];
+    var allShlokas = [{"id":1,"name":"Ganesha Stavah","sanskrit":"ajaM nirvikalpaM nirAkAramEkaM nirAnanda mAnanda madvaitapUrNaM paraM nirguNaM nirvishEShaM nirIhaM parabrahmarUpaM gaNEshaM bhajEma","sanskritParts":["ajaM nirvikalpaM nirAkAramEkaM","nirAnanda mAnanda madvaitapUrNaM","paraM nirguNaM nirvishEShaM nirIhaM","parabrahmarUpaM gaNEshaM bhajEma"],"meaning":"Let us worship Ganesha who is the form of Parabrahman — unborn, beyond thought, formless, one, beyond joy yet full of non-dual bliss, supreme, beyond qualities, beyond distinction, desireless.","deity":"Ganesha","occasion":"Ganesha worship / Beginning of study","source":"Ganpati Upanishad / Ganesha Stavam by Adi Shankaracharya","keywords":["Parabrahman","unborn","formless","non-dual","beyond qualities","Adi Shankaracharya"],"verses":3,"deepMeaning":{"symbolism":"Ganesha is not just an elephant-headed deity but the Supreme Reality (Parabrahman) itself — formless, infinite, and beyond all attributes","keyTerms":{"ajam":"Unborn - He was never born and will never die","nirvikalpam":"Beyond thought/imagination","nirAkAram":"Formless","advaitapUrNam":"Full of non-dual bliss","nirguNam":"Beyond the three gunas (qualities)"},"refrain":"Each verse ends with 'parabrahmarUpaM gaNEshaM bhajEma' - Let us worship Ganesha who is the form of Parabrahman","verse3theme":"Verse 3 describes Ganesha as jagatkAraNam - the cause of the entire universe, worshipped by all gods and the whole world"},"trivia":"This is an Advaita Vedanta hymn — it describes Ganesha not in physical form but as the formless Supreme Reality"},{"id":2,"name":"Saraswati Vandana","sanskrit":"Yā kundendu tuṣhāra hāra dhavalā yā śhubhra vastrāvṛtā Yā vīṇā vara daṇḍa maṇḍita karā yā śhveta padmāsanā Yā brahmāchyuta śhaṅkara prabhṛtibhir devaiḥ sadā vanditā Sā māṁ pātu Sarasvatī Bhagavatī nisḥśheṣa jāḍyāpahā","sanskritParts":["Yā kundendu tuṣhāra hāra dhavalā yā śhubhra vastrāvṛtā","Yā vīṇā vara daṇḍa maṇḍita karā yā śhveta padmāsanā","Yā brahmāchyuta śhaṅkara prabhṛtibhir devaiḥ sadā vanditā","Sā māṁ pātu Sarasvatī Bhagavatī nisḥśheṣa jāḍyāpahā"],"meaning":"She who is as white as jasmine, moon, snow, and pearl necklace, who wears pure white garments, whose hands are adorned with the veena, who sits on a white lotus, who is always worshipped by Brahma, Vishnu (Achyuta), Shiva (Shankara) and other gods — may that Saraswati Bhagavati, the remover of all ignorance and dullness, protect me.","deity":"Saraswati","occasion":"Before study / Saraswati Puja / Vasant Panchami","keywords":["white","jasmine","moon","veena","lotus","Brahma","Vishnu","Shiva","ignorance","dullness"],"deepMeaning":{"symbolism":"Every aspect of Saraswati is white — representing purity of knowledge, untainted by worldly desires","appearance":{"color":"White as jasmine (kunda), moon (indu), snow (tushara), and pearl necklace (hara)","clothes":"Pure white garments (shubhra vastra)","hands":"Adorned with the veena (stringed instrument of learning)","seat":"White lotus (shveta padmasana)"},"worshippers":"Even the Trinity — Brahma (creator), Achyuta/Vishnu (preserver), and Shankara/Shiva (destroyer) — worship her","blessing":"Nishshesha jadyapaha — complete remover of all ignorance and mental dullness"},"trivia":"This shloka is recited across India before exams and at the start of educational events"},{"id":3,"name":"Mantra Pushpam","sanskrit":"yō-'pā-mpuṣpaṃ vēda Puṣpavān prajāvān paśumān bhavati chandramā vā apāmpuṣpam Puṣpavān prajāvān paśumān bhavati ya ēvaṃ vēda Yō-'pām āyatanaṃ vēda Āyatanavān bhavati","sanskritParts":["yō-'pā-mpuṣpaṃ vēda","Puṣpavān prajāvān paśumān bhavati","chandramā vā apāmpuṣpam","ya ēvaṃ vēda","Yō-'pām āyatanaṃ vēda","Āyatanavān bhavati"],"meaning":"He who knows the flower of water becomes endowed with flowers, progeny, and cattle. The moon is the flower of water. He who knows the support (ayatanam) of water becomes established. The hymn then traces water's connection to fire, wind, sun, moon, stars, rain, and the year.","deity":"Vedic Universal Prayer","occasion":"End of puja / Offering of mantras to deity","source":"Taittiriya Aranyaka (Yajur Veda)","keywords":["water","flower","moon","fire","wind","sun","stars","rain","year","ayatanam","Kubera"],"deepMeaning":{"symbolism":"Water is the foundation of all life — the hymn traces cosmic connections showing how everything in nature is interconnected through water","connections":{"water_flower":"Moon (Chandrama) is the flower of water","water_fire":"Fire (Agni) is the support of water, and water is the support of fire","water_wind":"Wind (Vayu) is the support of water","water_sun":"The Sun is the support of water","water_moon":"Moon is the support of water","water_stars":"Stars (Nakshatra) are the support of water","water_rain":"Rain (Parjanya) is the support of water","water_year":"The Year (Samvatsara) is the support of water"},"refrain":"Each section ends with 'Āyatanavān bhavati' — one becomes established/supported","conclusion":"Ends with a prayer to the King of Kings (Rajadhiraja) and Kubera"},"trivia":"Mantra Pushpam is chanted at the end of all Vedic pujas while offering flowers — the mantras themselves become the flowers offered to God"},{"id":4,"name":"Shanti Mantra (Bhadram Karnebhih)","sanskrit":"Om Bhadram karnebhih Shrnnuyaama Devaah Bhadram Pashye maAkssabhir-Yajatraah Sthirai Ranggai stussttuva(g)um sastanuubhih Vyashema Deva hitam Yad-Aayuh Svasti Na Indro Vruddha-Shravaah Svasti Nah Puushaa Vishva-Vedaah Svasti Nah-staarkshyo Arissta-Nemih Svasti No Brihaspatir-Dadhaatu Om Shaantih Shaantih Shaantih","sanskritParts":["Om Bhadram karnebhih Shrnnuyaama Devaah","Bhadram Pashye maAkssabhir-Yajatraah","Sthirai Ranggai stussttuva(g)um sastanuubhih","Vyashema Deva hitam Yad-Aayuh","Svasti Na Indro Vruddha-Shravaah","Svasti Nah Puushaa Vishva-Vedaah","Svasti Nah-staarkshyo Arissta-Nemih","Svasti No Brihaspatir-Dadhaatu","Om Shaantih Shaantih Shaantih"],"meaning":"O Gods, may we hear auspicious things with our ears. O worshipful ones, may we see auspicious things with our eyes. May we live our full lifespan allotted by the gods with strong limbs and healthy bodies. May Indra of great fame bless us. May Pusha, the all-knowing, bless us. May Tarkshya (Garuda) of unobstructed path bless us. May Brihaspati grant us well-being. Om Peace, Peace, Peace.","deity":"Indra, Pusha, Tarkshya (Garuda), Brihaspati","occasion":"Beginning and end of Vedic study / Puja","source":"Rig Veda / Atharva Veda","keywords":["ears","eyes","limbs","lifespan","Indra","Pusha","Tarkshya","Brihaspati","Svasti","peace"],"deepMeaning":{"symbolism":"Prays for the proper functioning of all senses and a full, healthy life in service of the divine","prayers":{"ears":"Bhadram karnebhih — May we hear only good/auspicious things","eyes":"Bhadram pashyema — May we see only good/auspicious things","body":"Sthirai angai — With firm/strong limbs","life":"Vyashema deva hitam yad-aayuh — May we live the full divine lifespan"},"fourDeities":{"Indra":"King of gods, of great fame (Vruddha-Shravah)","Pusha":"Sun god, the all-knowing (Vishva-Vedah)","Tarkshya":"Garuda, of unobstructed path (Arishta-Nemih)","Brihaspati":"Guru of the gods, teacher of wisdom"},"svasti":"Svasti means well-being/blessings — asked from four different deities"},"trivia":"This is one of the most widely used shanti mantras, chanted at the beginning and end of Vedic recitations"},{"id":5,"name":"Mahalakshmi Ashtakam","sanskrit":"namastē'stu mahāmāyē śrīpīṭhē surapūjitē śaṅkhachakra gadāhastē mahālakṣmi namō'stu tē","sanskritParts":["namastē'stu mahāmāyē śrīpīṭhē surapūjitē","śaṅkhachakra gadāhastē mahālakṣmi namō'stu tē","namastē garuḍārūḍhē kōlāsura bhayaṅkari","sarvapāpaharē dēvi mahālakṣmi namō'stu tē","sarvajñē sarvavaradē sarva duṣṭa bhayaṅkari","sarvaduḥkha harē dēvi mahālakṣmi namō'stu tē","siddhi buddhi pradē dēvi bhukti mukti pradāyini","mantra mūrtē sadā dēvi mahālakṣmi namō'stu tē","padmāsana sthitē dēvi parabrahma svarūpiṇi","paramēśi jaganmātaḥ mahālakṣmi namō'stu tē","śvētāmbaradharē dēvi nānālaṅkāra bhūṣitē","jagasthitē jaganmātaḥ mahālakṣmi namō'stu tē"],"meaning":"Salutations to Mahalakshmi — the great Mahamaya worshipped by gods, who holds conch, disc and mace; who rides Garuda and terrified the demon Kolasura; the all-knowing, boon-granting, destroyer of evil and sorrow; giver of success, wisdom, worldly enjoyment and liberation; seated on lotus, form of Parabrahman, supreme goddess, mother of the universe; dressed in white, adorned with ornaments, sustainer of the world.","deity":"Mahalakshmi","occasion":"Lakshmi Puja / Diwali / Friday worship","source":"Padma Purana (attributed to Indra)","keywords":["Mahamaya","conch","disc","mace","Garuda","Kolasura","siddhi","buddhi","mukti","lotus","Parabrahman","mother"],"verses":8,"deepMeaning":{"symbolism":"Mahalakshmi is not just the goddess of wealth — she is the Supreme Mother, the form of Parabrahman, who gives both worldly enjoyment (bhukti) and spiritual liberation (mukti)","eightVerses":{"verse1":"Mahamaya, worshipped by gods, holding conch, disc, and mace","verse2":"Rides Garuda, terrified demon Kolasura, remover of all sins","verse3":"All-knowing, all-granting, terrifying to evil, remover of all sorrows","verse4":"Giver of success (siddhi) and wisdom (buddhi), worldly joy and liberation","verse5":"Without beginning or end, primordial energy (Adi Shakti), supreme goddess","verse6":"Gross and subtle, fierce power, great remover of sins","verse7":"Seated on lotus, form of Parabrahman, supreme goddess, mother of universe","verse8":"Dressed in white, adorned with ornaments, sustainer and mother of the world"},"phalaShruti":{"once":"Reading once daily destroys great sins (mahapapa vinashanam)","twice":"Reading twice daily gives wealth and grain (dhana dhanya samanvitah)","thrice":"Reading thrice daily destroys great enemies (mahashatru vinashanam)"}},"trivia":"Ashtakam means 'eight verses' — this is one of the most popular Lakshmi stotras, attributed to Indra who composed it to please Lakshmi"}];
 
     // Google Form configuration
     var GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdLc4T_wQJ5NRI7DgK2KyjYtACBUl7cRwn6EUmEzDKOj-5evQ/formResponse';
@@ -380,18 +500,48 @@
     var score = 0;
     var correctCount = 0;
     var selectedDifficulty = 'all';
+    var selectedMode = 'quiz';
     var answered = false;
     var studentName = '';
+    var wrongShlokaNames = [];
 
     // Matching state
     var matchingState = { selectedLeft: null, matched: [], pairs: [] };
 
-    /* ---- Difficulty Selection ---- */
+    // Flashcard state
+    var flashcardShlokas = [];
+    var currentCardIndex = 0;
+
+    /* ---- Mode & Difficulty Selection ---- */
+
+    function selectMode(mode, btn) {
+      document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedMode = mode;
+      document.getElementById('quiz-options').style.display = mode === 'quiz' ? 'block' : 'none';
+    }
 
     function selectDifficulty(diff, btn) {
-      document.querySelectorAll('.difficulty-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
+      // Keep for compatibility but use dropdown value
       selectedDifficulty = diff;
+    }
+
+    function startSelected() {
+      studentName = document.getElementById('student-name').value.trim();
+      if (!studentName) {
+        alert('Please enter your name!');
+        document.getElementById('student-name').focus();
+        return;
+      }
+      
+      const dropdown = document.getElementById('difficulty-dropdown');
+      if (dropdown) selectedDifficulty = dropdown.value;
+
+      if (selectedMode === 'quiz') {
+        startQuiz();
+      } else {
+        startFlashcards();
+      }
     }
 
     /* ---- Quiz Mode ---- */
@@ -423,10 +573,12 @@
       score = 0;
       correctCount = 0;
       answered = false;
+      wrongShlokaNames = [];
 
       document.getElementById('start-screen').classList.add('hidden');
       document.getElementById('quiz-screen').classList.remove('hidden');
       document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
 
       document.getElementById('total-questions').textContent = questions.length;
       updateScore();
@@ -493,6 +645,9 @@
       } else {
         element.classList.add('incorrect');
         showFeedback(false, 'Incorrect. The answer is: ' + q.answer);
+        if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+          wrongShlokaNames.push(q.shloka);
+        }
       }
 
       updateScore();
@@ -643,7 +798,34 @@
       document.getElementById('result-message').textContent = message;
       document.getElementById('result-name').textContent = studentName;
 
+      // Show study wrong button if there are mistakes
+      const studyBtn = document.getElementById('study-wrong-btn');
+      if (studyBtn && wrongShlokaNames.length > 0) {
+        studyBtn.style.display = 'block';
+      } else if (studyBtn) {
+        studyBtn.style.display = 'none';
+      }
+      
+      // Reset submit button
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = 'Submit Score';
+      }
+      document.getElementById('score-submitted').classList.add('hidden');
+    }
+
+    function submitScoreToGoogleFormManual() {
+      const percentage = Math.round((correctCount / questions.length) * 100);
       submitScoreToGoogleForm(percentage);
+      
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.textContent = 'Submitted';
+      }
     }
 
     function submitScoreToGoogleForm(percentage) {
@@ -682,7 +864,68 @@
     function goHome() {
       document.getElementById('results-screen').classList.add('hidden');
       document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.add('hidden');
       document.getElementById('start-screen').classList.remove('hidden');
+    }
+
+    /* ---- Flashcard Mode ---- */
+
+    function startFlashcards() {
+      flashcardShlokas = allShlokas.slice();
+      currentCardIndex = 0;
+      
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.remove('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      
+      updateFlashcard();
+    }
+
+    function updateFlashcard() {
+      const s = flashcardShlokas[currentCardIndex];
+      const card = document.getElementById('flashcard');
+      card.classList.remove('flipped');
+      
+      document.getElementById('fc-name').textContent = s.name;
+      document.getElementById('fc-sanskrit').textContent = s.sanskrit || '';
+      document.getElementById('fc-meaning').textContent = s.meaning || '';
+      document.getElementById('fc-deity').textContent = s.deity || '';
+      document.getElementById('fc-occasion').textContent = s.occasion || '';
+      document.getElementById('fc-deep').textContent = s.deepMeaning ? s.deepMeaning.summary : '';
+      
+      document.getElementById('flashcard-counter').textContent = (currentCardIndex + 1) + ' / ' + flashcardShlokas.length;
+    }
+
+    function flipCard() {
+      document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      currentCardIndex = (currentCardIndex + 1) % flashcardShlokas.length;
+      updateFlashcard();
+    }
+
+    function prevCard() {
+      currentCardIndex = (currentCardIndex - 1 + flashcardShlokas.length) % flashcardShlokas.length;
+      updateFlashcard();
+    }
+
+    function shuffleFlashcards() {
+      flashcardShlokas.sort(() => Math.random() - 0.5);
+      currentCardIndex = 0;
+      updateFlashcard();
+    }
+
+    function studyWrongAnswers() {
+      if (wrongShlokaNames.length === 0) return;
+      
+      flashcardShlokas = allShlokas.filter(s => wrongShlokaNames.includes(s.name));
+      currentCardIndex = 0;
+      
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('flashcard-screen').classList.remove('hidden');
+      
+      updateFlashcard();
     }
   </script>
 </body>

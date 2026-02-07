@@ -433,23 +433,14 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
         </div>
       </div>
 
-      <div id="quiz-options" class="difficulty-select">
-        <div class="difficulty-btn active" data-difficulty="all" onclick="selectDifficulty('all', this)">
-          <div class="emoji">&#x1F31F;</div>
-          <div class="text">All Levels</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="simple" onclick="selectDifficulty('simple', this)">
-          <div class="emoji">&#x1F331;</div>
-          <div class="text">Simple</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="intermediate" onclick="selectDifficulty('intermediate', this)">
-          <div class="emoji">&#x1F33F;</div>
-          <div class="text">Intermediate</div>
-        </div>
-        <div class="difficulty-btn" data-difficulty="difficult" onclick="selectDifficulty('difficult', this)">
-          <div class="emoji">&#x1F333;</div>
-          <div class="text">Difficult</div>
-        </div>
+      <div id="quiz-options">
+        <div class="difficulty-label" style="color: white; margin-bottom: 10px; font-weight: 500;">Select Difficulty:</div>
+        <select id="difficulty-dropdown" style="padding: 12px 20px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 10px; background: white; margin-bottom: 25px; width: 100%; max-width: 200px;">
+          <option value="all">🌟 All Levels</option>
+          <option value="simple">🌱 Simple</option>
+          <option value="intermediate">🌿 Intermediate</option>
+          <option value="difficult">🌳 Difficult</option>
+        </select>
       </div>
 
       <button class="btn btn-primary" onclick="startSelected()">Start</button>
@@ -500,9 +491,14 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
         </div>
       </div>
       <p id="score-submitted" class="hidden" style="color: #4caf50; font-size: 0.9em; margin-top: 15px;">Your score has been sent to your teacher!</p>
-      <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
-      <button class="btn btn-secondary" onclick="goHome()" style="margin-left: 10px;">Change Mode</button>
-      <button class="btn btn-secondary" id="study-wrong-btn" onclick="studyWrongAnswers()" style="margin-left: 10px; display: none;">Study Wrong Answers</button>
+      <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto;">
+        <button class="btn btn-primary" id="submit-score-btn" onclick="submitScoreToGoogleFormManual()" style="margin-top:0;">Submit Score</button>
+        <button class="btn btn-secondary" id="study-wrong-btn" onclick="studyWrongAnswers()" style="display: none; margin-top:0;">Review Mistakes</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="restartQuiz()" style="flex: 1; margin-top:0;">Try Again</button>
+          <button class="btn btn-secondary" onclick="goHome()" style="flex: 1; margin-top:0;">Home</button>
+        </div>
+      </div>
     </div>
 
     <div id="flashcard-screen" class="hidden">
@@ -587,8 +583,7 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
     }
 
     function selectDifficulty(diff, btn) {
-      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      // Keep for compatibility but use dropdown value
       selectedDifficulty = diff;
     }
 
@@ -599,6 +594,10 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
         document.getElementById('student-name').focus();
         return;
       }
+      
+      const dropdown = document.getElementById('difficulty-dropdown');
+      if (dropdown) selectedDifficulty = dropdown.value;
+
       if (selectedMode === 'quiz') {
         startQuiz();
       } else {
@@ -994,13 +993,34 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
       document.getElementById('result-message').textContent = message;
       document.getElementById('result-name').textContent = studentName;
 
-      if (wrongShlokaNames.length > 0) {
-        document.getElementById('study-wrong-btn').style.display = 'inline-block';
-      } else {
-        document.getElementById('study-wrong-btn').style.display = 'none';
+      // Show study wrong button if there are mistakes
+      const studyBtn = document.getElementById('study-wrong-btn');
+      if (studyBtn && wrongShlokaNames.length > 0) {
+        studyBtn.style.display = 'block';
+      } else if (studyBtn) {
+        studyBtn.style.display = 'none';
       }
+      
+      // Reset submit button
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = 'Submit Score';
+      }
+      document.getElementById('score-submitted').classList.add('hidden');
+    }
 
+    function submitScoreToGoogleFormManual() {
+      const percentage = Math.round((correctCount / questions.length) * 100);
       submitScoreToGoogleForm(percentage);
+      
+      const submitBtn = document.getElementById('submit-score-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.textContent = 'Submitted';
+      }
     }
 
     function submitScoreToGoogleForm(percentage) {
