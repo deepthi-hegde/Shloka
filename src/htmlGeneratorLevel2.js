@@ -280,6 +280,62 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       margin-bottom: 8px;
     }
 
+    /* Audio question styles */
+    .audio-container { text-align: center; padding: 10px; }
+
+    .sanskrit-display {
+      font-size: 1.15em; line-height: 1.8; padding: 20px;
+      background: #fff8f0; border-radius: 12px; margin-bottom: 20px;
+      font-style: italic; color: #4a4a4a;
+    }
+
+    .sanskrit-display .blank {
+      display: inline-block; min-width: 100px; border-bottom: 3px solid #e65100;
+      margin: 0 4px; color: #e65100; font-weight: bold;
+    }
+
+    .record-btn {
+      width: 80px; height: 80px; border-radius: 50%; border: none;
+      background: #f44336; color: white; font-size: 1.5em;
+      cursor: pointer; transition: all 0.2s ease; margin: 15px;
+    }
+
+    .record-btn:hover { transform: scale(1.1); }
+    .record-btn.recording { animation: pulse-record 1.5s infinite; background: #d32f2f; }
+
+    @keyframes pulse-record {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244,67,54,0.7); }
+      50% { box-shadow: 0 0 0 15px rgba(244,67,54,0); }
+    }
+
+    .playback-btn {
+      width: 60px; height: 60px; border-radius: 50%; border: none;
+      background: #e65100; color: white; font-size: 1.3em;
+      cursor: pointer; margin: 15px;
+    }
+
+    .audio-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
+    .audio-status { font-size: 0.9em; color: #666; margin: 10px 0; }
+
+    .correct-answer-reveal {
+      background: #e8f5e9; border: 2px solid #4caf50; border-radius: 12px;
+      padding: 15px; margin: 15px 0; text-align: left;
+    }
+
+    .correct-answer-reveal .reveal-label { font-weight: 600; color: #2e7d32; margin-bottom: 8px; }
+    .correct-answer-reveal .sanskrit { font-style: italic; color: #333; line-height: 1.6; }
+
+    .self-assess { display: flex; gap: 15px; justify-content: center; margin-top: 15px; }
+
+    .self-assess-btn {
+      padding: 12px 30px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; font-size: 1em; font-weight: 600;
+      transition: all 0.2s ease; background: white;
+    }
+
+    .self-assess-btn.correct-btn:hover { border-color: #4caf50; background: #e8f5e9; }
+    .self-assess-btn.incorrect-btn:hover { border-color: #f44336; background: #ffebee; }
+
     /* Flashcard styles */
     .flashcard-controls {
       display: flex; justify-content: space-between; align-items: center;
@@ -518,6 +574,11 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
     // Matching state
     var matchingState = { selectedLeft: null, matched: [], pairs: [] };
 
+    // Audio state
+    var mediaRecorder = null;
+    var audioChunks = [];
+    var recordedBlob = null;
+
     // Flashcard state
     var flashcardShlokas = [];
     var currentCardIndex = 0;
@@ -604,6 +665,10 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
 
       if (q.type === 'matching') {
         showMatchingQuestion(q);
+        return;
+      }
+      if (q.type === 'audio_fill' || q.type === 'audio_recite') {
+        showAudioQuestion(q);
         return;
       }
 
@@ -764,6 +829,137 @@ function generateHTML(questions, title = 'Shloka Quiz - Level 2', options = {}) 
       showFeedback(false, 'Here are the correct matches.');
       document.getElementById('giveup-btn').classList.add('hidden');
       document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    /* ---- Audio Questions ---- */
+
+    function showAudioQuestion(q) {
+      var difficultyClass = 'difficulty-' + q.difficulty;
+      var difficultyLabel = q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1);
+
+      var contentHTML = '';
+      var answerText = '';
+
+      if (q.type === 'audio_fill') {
+        var displayText = q.sanskritWithBlank.replace('________', '<span class="blank">________</span>');
+        contentHTML = '<div class="sanskrit-display">' + displayText + '</div>';
+        answerText = '<div class="reveal-label">Missing part:</div><div class="sanskrit">' + q.correctPart + '</div>' +
+                     '<div style="margin-top:10px; font-size:0.9em; color:#666;"><strong>Full shloka:</strong> ' + q.fullSanskrit + '</div>';
+      } else {
+        contentHTML = '<div class="sanskrit-display" style="font-style:normal;">' +
+                      '<p style="font-weight:600; font-size:1.1em;">' + q.question + '</p>' +
+                      '<p style="margin-top:10px; font-size:0.9em; color:#888;">Hint: ' + q.hint + '</p></div>';
+        answerText = '<div class="reveal-label">Expected shloka (' + q.shloka + '):</div>' +
+                     '<div class="sanskrit">' + q.correctSanskrit + '</div>';
+      }
+
+      document.getElementById('question-card').innerHTML =
+        '<div class="question-header">' +
+          '<span class="question-number">Question ' + (currentQuestionIndex + 1) + '</span>' +
+          '<span class="difficulty-badge ' + difficultyClass + '">' + difficultyLabel + '</span>' +
+        '</div>' +
+        '<p class="question-text">' + q.question + '</p>' +
+        '<div class="audio-container">' +
+          contentHTML +
+          '<div class="audio-controls">' +
+            '<button class="record-btn" id="record-btn" onclick="toggleRecording()">&#9679;</button>' +
+            '<button class="playback-btn" id="playback-btn" onclick="playRecording()" style="display:none;">&#9654;</button>' +
+          '</div>' +
+          '<div class="audio-status" id="audio-status">Tap the red button to start recording</div>' +
+          '<div id="answer-reveal" class="correct-answer-reveal" style="display:none;">' + answerText + '</div>' +
+          '<div id="self-assess" class="self-assess" style="display:none;">' +
+            '<button class="self-assess-btn correct-btn" onclick="selfAssess(true)">I got it right</button>' +
+            '<button class="self-assess-btn incorrect-btn" onclick="selfAssess(false)">I need more practice</button>' +
+          '</div>' +
+          '<button class="btn btn-secondary btn-center" id="skip-audio-btn" onclick="skipAudioQuestion()" style="font-size:0.9em; padding:10px 25px;">Skip (show answer)</button>' +
+        '</div>' +
+        '<div id="feedback" class="feedback hidden"></div>' +
+        '<button id="next-btn" class="btn btn-primary btn-center hidden" onclick="nextQuestion()">' +
+          (currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'See Results') +
+        '</button>';
+    }
+
+    function toggleRecording() {
+      var btn = document.getElementById('record-btn');
+      var status = document.getElementById('audio-status');
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        btn.classList.remove('recording');
+        btn.innerHTML = '&#9679;';
+        status.textContent = 'Recording stopped. Tap play to listen.';
+        return;
+      }
+
+      audioChunks = [];
+      recordedBlob = null;
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        status.textContent = 'Recording not supported in this browser. Use Skip to see the answer.';
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = function(e) { audioChunks.push(e.data); };
+          mediaRecorder.onstop = function() {
+            recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            stream.getTracks().forEach(function(t) { t.stop(); });
+            document.getElementById('playback-btn').style.display = 'inline-block';
+            document.getElementById('answer-reveal').style.display = 'block';
+            document.getElementById('self-assess').style.display = 'flex';
+            document.getElementById('skip-audio-btn').style.display = 'none';
+          };
+          mediaRecorder.start();
+          btn.classList.add('recording');
+          btn.innerHTML = '&#9632;';
+          status.textContent = 'Recording... Tap to stop.';
+        })
+        .catch(function() {
+          status.textContent = 'Microphone not available. Use Skip to see the answer.';
+        });
+    }
+
+    function playRecording() {
+      if (!recordedBlob) return;
+      var audio = new Audio(URL.createObjectURL(recordedBlob));
+      audio.play();
+      document.getElementById('audio-status').textContent = 'Playing your recording...';
+      audio.onended = function() {
+        document.getElementById('audio-status').textContent = 'Compare your recording with the answer below.';
+      };
+    }
+
+    function selfAssess(isCorrect) {
+      if (answered) return;
+      answered = true;
+
+      if (isCorrect) {
+        score += 10;
+        correctCount++;
+        showFeedback(true, 'Great! Keep practicing!');
+      } else {
+        showFeedback(false, 'Keep practicing - you will get it next time!');
+        var q = questions[currentQuestionIndex];
+        if (q.shloka && !wrongShlokaNames.includes(q.shloka)) {
+          wrongShlokaNames.push(q.shloka);
+        }
+      }
+
+      document.querySelectorAll('.self-assess-btn').forEach(function(b) {
+        b.style.opacity = '0.5';
+        b.style.pointerEvents = 'none';
+      });
+
+      updateScore();
+      document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function skipAudioQuestion() {
+      document.getElementById('answer-reveal').style.display = 'block';
+      document.getElementById('self-assess').style.display = 'flex';
+      document.getElementById('skip-audio-btn').style.display = 'none';
     }
 
     /* ---- Common Functions ---- */

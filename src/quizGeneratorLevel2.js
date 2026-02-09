@@ -591,6 +591,49 @@ function generateMatchingQuestions(selectedShlokas, difficulty) {
   return questions;
 }
 
+// Generate audio recording questions (fill-in-blank + recite)
+function generateAudioQuestions(selectedShlokas) {
+  const questions = [];
+
+  // Audio fill-in-the-blank: pick shlokas with sanskritParts
+  const partsShlokas = selectedShlokas.filter(s => s.sanskritParts && s.sanskritParts.length >= 2);
+  const shuffledParts = shuffleArray([...partsShlokas]);
+
+  for (let i = 0; i < Math.min(2, shuffledParts.length); i++) {
+    const s = shuffledParts[i];
+    const blankIndex = Math.floor(Math.random() * s.sanskritParts.length);
+    const correctPart = s.sanskritParts[blankIndex];
+    const withBlank = s.sanskritParts.map((part, idx) =>
+      idx === blankIndex ? '________' : part
+    ).join(' ');
+
+    questions.push({
+      type: 'audio_fill',
+      question: `Say the missing part of "${s.name}":`,
+      sanskritWithBlank: withBlank,
+      correctPart: correctPart,
+      fullSanskrit: s.sanskrit,
+      shloka: s.name,
+      difficulty: 'intermediate'
+    });
+  }
+
+  // Audio recite: ask to recite a shloka by deity/topic
+  const reciteShlokas = shuffleArray([...selectedShlokas]).slice(0, 2);
+  for (const s of reciteShlokas) {
+    questions.push({
+      type: 'audio_recite',
+      question: `Recite a shloka about ${s.deity}`,
+      hint: s.name,
+      correctSanskrit: s.sanskrit,
+      shloka: s.name,
+      difficulty: 'difficult'
+    });
+  }
+
+  return questions;
+}
+
 // Main quiz generation function
 function generateQuiz(options = {}) {
   const {
@@ -644,6 +687,13 @@ function generateQuiz(options = {}) {
   matchingQs.forEach(mq => {
     mq.id = questions.length + 1;
     questions.push(mq);
+  });
+
+  // Add audio questions
+  const audioQs = generateAudioQuestions(selectedShlokas);
+  audioQs.forEach(aq => {
+    aq.id = questions.length + 1;
+    questions.push(aq);
   });
 
   return shuffleArray(questions).slice(0, maxQuestions);
