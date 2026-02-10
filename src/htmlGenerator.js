@@ -421,12 +421,12 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
       </div>
 
       <div class="mode-select">
-        <div class="mode-btn active" data-mode="quiz" onclick="selectMode('quiz', this)">
+        <div class="mode-btn active" id="quiz-mode-btn" data-mode="quiz" onclick="selectMode('quiz', this)">
           <div class="emoji">&#x1F4DD;</div>
           <div class="text">Quiz Mode</div>
           <div class="desc">Test your knowledge</div>
         </div>
-        <div class="mode-btn" data-mode="flashcard" onclick="selectMode('flashcard', this)">
+        <div class="mode-btn" id="flashcard-mode-btn" data-mode="flashcard" onclick="selectMode('flashcard', this)">
           <div class="emoji">&#x1F4DA;</div>
           <div class="text">Flashcard Mode</div>
           <div class="desc">Study and review</div>
@@ -550,6 +550,9 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
     // Google Form configuration
     const GOOGLE_FORM_URL = '${googleFormUrl}';
     const FORM_FIELDS = ${JSON.stringify(googleFormFields)};
+
+    // Quiz visibility configuration
+    const QUIZ_ENABLED = ${options.quizEnabled !== false};
 
     let questions = [];
     let currentQuestionIndex = 0;
@@ -1144,6 +1147,19 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
       document.getElementById('start-screen').classList.remove('hidden');
       document.getElementById('quiz-options').style.display = selectedMode === 'quiz' ? 'flex' : 'none';
     }
+    /* ---- Initialization ---- */
+    window.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const quizOverride = urlParams.get('quiz') === '1' || urlParams.get('admin') === '1';
+      
+      if (!QUIZ_ENABLED && !quizOverride) {
+        // Hide quiz button and select flashcard mode
+        const quizBtn = document.getElementById('quiz-mode-btn');
+        const flashBtn = document.getElementById('flashcard-mode-btn');
+        if (quizBtn) quizBtn.style.display = 'none';
+        if (flashBtn) selectMode('flashcard', flashBtn);
+      }
+    });
   </script>
 </body>
 </html>`;

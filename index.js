@@ -40,7 +40,7 @@ function createQuiz(options = {}) {
   console.log(`Generated ${questions.length} questions`);
 
   // Prepare HTML generation options
-  const htmlOptions = { shlokas: shlokas.slice(0, 20) };
+  const htmlOptions = { shlokas: shlokas.slice(0, 20), quizEnabled: config.quizEnabled !== false };
   if (config.googleForm && config.googleForm.enabled && config.googleForm.url) {
     htmlOptions.googleFormUrl = config.googleForm.url;
     htmlOptions.googleFormFields = config.googleForm.fields;

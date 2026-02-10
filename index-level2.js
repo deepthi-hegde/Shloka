@@ -32,7 +32,7 @@ function createQuiz(options = {}) {
   // Generate questions
   // We use all shlokas in the Level 2 JSON
   const shlokaIds = shlokas.map(s => s.id);
-  
+
   const questions = generateQuiz({
     shlokaIds: shlokaIds,
     difficulty: difficulty,
@@ -43,10 +43,11 @@ function createQuiz(options = {}) {
   console.log(`Generated ${questions.length} questions`);
 
   // Prepare HTML generation options
-  const htmlOptions = { 
+  const htmlOptions = {
     shlokas: shlokas,
     googleFormUrl: '',
-    googleFormFields: {}
+    googleFormFields: {},
+    quizEnabled: config.quizEnabled !== false
   };
 
   if (config.googleForm && config.googleForm.enabled && config.googleForm.url) {
