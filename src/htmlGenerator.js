@@ -591,11 +591,13 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
     }
 
     function startSelected() {
-      studentName = document.getElementById('student-name').value.trim();
-      if (!studentName) {
-        alert('Please enter your name!');
-        document.getElementById('student-name').focus();
-        return;
+      if (selectedMode === 'quiz') {
+        studentName = document.getElementById('student-name').value.trim();
+        if (!studentName) {
+          alert('Please enter your name!');
+          document.getElementById('student-name').focus();
+          return;
+        }
       }
       
       const dropdown = document.getElementById('difficulty-dropdown');
@@ -1156,7 +1158,9 @@ function generateHTML(questions, title = 'Shloka Quiz', options = {}) {
         // Hide quiz button and select flashcard mode
         const quizBtn = document.getElementById('quiz-mode-btn');
         const flashBtn = document.getElementById('flashcard-mode-btn');
+        const nameInput = document.querySelector('.name-input');
         if (quizBtn) quizBtn.style.display = 'none';
+        if (nameInput) nameInput.style.display = 'none';
         if (flashBtn) selectMode('flashcard', flashBtn);
       }
     });
